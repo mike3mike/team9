@@ -25,13 +25,9 @@ public class ConnectionDB {
 
     }
 
-    public void execute(String SQL) {
-        try {
-            con.createStatement().execute(SQL);
-        } catch (SQLException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
+    public void execute(String SQL) throws SQLException {
+        con.createStatement().execute(SQL);
+
     }
 
     public ResultSet getList(String SQL) throws SQLException {
