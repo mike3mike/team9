@@ -1,4 +1,3 @@
-import Domain.Course;
 import javafx.application.Application;
 
 public class Main {
