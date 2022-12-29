@@ -2,12 +2,10 @@ package Gui;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-
 import Database.ConnectionDB;
 import Domain.CourseDomain;
 import javafx.application.Application;
 import javafx.collections.ObservableList;
-import javafx.event.EventHandler;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -20,7 +18,6 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
-import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import javafx.util.Callback;
 
@@ -35,47 +32,49 @@ public class Course extends Application {
     private TableColumn actionCol = new TableColumn("Action");
 
     public Course() {
+        // constructor for Course where tablecolumns are made
         nameColumn.setCellValueFactory(new PropertyValueFactory<>("name"));
         subjectColumn.setCellValueFactory(new PropertyValueFactory<>("subject"));
         descriptionColumn.setCellValueFactory(new PropertyValueFactory<>("description"));
         difficultyColumn.setCellValueFactory(new PropertyValueFactory<>("difficulty"));
-        Callback<TableColumn<CourseDomain, String>, TableCell<CourseDomain, String>> cellFactory = //
-                new Callback<TableColumn<CourseDomain, String>, TableCell<CourseDomain, String>>() {
+        // column Action for edit buttons made for every course in the list
+        Callback<TableColumn<CourseDomain, String>, TableCell<CourseDomain, String>> cellFactory = new Callback<TableColumn<CourseDomain, String>, TableCell<CourseDomain, String>>() {
+            @Override
+            public TableCell call(final TableColumn<CourseDomain, String> param) {
+                final TableCell<CourseDomain, String> cell = new TableCell<CourseDomain, String>() {
+
+                    final Button btn = new Button("edit");
+
                     @Override
-                    public TableCell call(final TableColumn<CourseDomain, String> param) {
-                        final TableCell<CourseDomain, String> cell = new TableCell<CourseDomain, String>() {
+                    public void updateItem(String item, boolean empty) {
+                        super.updateItem(item, empty);
+                        if (empty) {
+                            setGraphic(null);
+                            setText(null);
+                        } else {
+                            btn.setOnAction(event -> {
+                                Stage stage = new Stage();
+                                CourseDomain course = getTableView().getItems().get(getIndex());
 
-                            final Button btn = new Button("edit");
+                                stage.setScene(editCourse(course));
+                                stage.show();
 
-                            @Override
-                            public void updateItem(String item, boolean empty) {
-                                super.updateItem(item, empty);
-                                if (empty) {
-                                    setGraphic(null);
-                                    setText(null);
-                                } else {
-                                    btn.setOnAction(event -> {
-                                        Stage stage = new Stage();
-                                        CourseDomain course = getTableView().getItems().get(getIndex());
-
-                                        stage.setScene(editCourse(course.getId()));
-                                        stage.show();
-
-                                    });
-                                    setGraphic(btn);
-                                    setText(null);
-                                }
-                            }
-                        };
-                        return cell;
+                            });
+                            setGraphic(btn);
+                            setText(null);
+                        }
                     }
                 };
+                return cell;
+            }
+        };
 
         actionCol.setCellFactory(cellFactory);
         courses.getColumns().addAll(nameColumn, subjectColumn, descriptionColumn, difficultyColumn, actionCol);
 
     }
 
+    // this method shows the courses on the screen
     public Scene printCourses() {
 
         try {
@@ -83,7 +82,7 @@ public class Course extends Application {
             ResultSet rs = con.getList("SELECT * FROM Courses");
             BorderPane layout = new BorderPane();
             Scene printCourses = new Scene(layout);
-
+            // this while loop adds courses to the table
             while (rs.next()) {
                 String name = rs.getString("name");
                 String Subject = rs.getString("subject");
@@ -95,6 +94,7 @@ public class Course extends Application {
 
             }
             layout.setLeft(courses);
+
             Button add = new Button("add new Course");
             Button delete = new Button("delete");
             HBox buttons = new HBox();
@@ -129,6 +129,7 @@ public class Course extends Application {
 
     }
 
+    // this method returns a Scene where you can submit a form that adds a course
     public Scene addCourse() {
 
         GridPane layout = new GridPane();
@@ -161,16 +162,22 @@ public class Course extends Application {
         return addCourse;
     }
 
+    // this method is a submit method for the addCourse method. It excecutes an
+    // sql query to add the course to the database and it retrieves back the course
+    // from the database so it can be added to the table
+    // (the course is retrieved from the database because the id gets
+    // autoincremented in the databases)
     private void extracted(TextField NameInput, TextField subjectInput, TextField descriptionInput,
             TextField difficultyInput) throws SQLException {
         String name = "'" + NameInput.getText() + "'";
         String Subject = subjectInput.getText();
         String description = descriptionInput.getText();
         String difficulty = difficultyInput.getText();
-
+        // adding course to database
         String SQL = "INSERT INTO Courses (name,subject,description,difficulty)VALUES (" + name + ",'" + Subject
                 + "','" + description + "','" + difficulty + "')";
         con.execute(SQL);
+        // adding course to table
         try {
             ResultSet rs = con
                     .getList(
@@ -183,13 +190,6 @@ public class Course extends Application {
 
                 int id = rs.getInt("ID");
                 courses.getItems().add(new CourseDomain(name, Subject, description, diffuculty, id));
-                Button edit = new Button("edit");
-                edit.setOnAction((EventHandler) -> {
-                    Stage stage = new Stage();
-                    stage.setScene(editCourse(id));
-                    stage.show();
-
-                });
 
             }
         } catch (SQLException e) {
@@ -204,10 +204,12 @@ public class Course extends Application {
 
     }
 
-    public Scene editCourse(int id) {
+    // this method returns a Scene where you can edit a course.
+    public Scene editCourse(CourseDomain course) {
         try {
 
             GridPane layout = new GridPane();
+            int id = course.getId();
 
             ResultSet rs = con.getList("SELECT * FROM Courses where ID = " + id);
 
@@ -229,7 +231,7 @@ public class Course extends Application {
                 layout.add(button, 1, 5);
                 button.setOnAction((eventHandler) -> {
                     try {
-                        editButton(NameInput, subjectInput, descriptionInput, difficultyInput, id);
+                        editButton(NameInput, subjectInput, descriptionInput, difficultyInput, id, course);
                         layout.add(new Label("Cursus is gewijzigd"), 2, 5);
 
                     } catch (SQLException e) {
@@ -250,8 +252,11 @@ public class Course extends Application {
 
     }
 
+    // this method is a submit method for the editcourse method. it excecutes an SQL
+    // query that updates the course info and it also updates the info of the course
+    // on the table.
     private void editButton(TextField NameInput, TextField subjectInput, TextField descriptionInput,
-            TextField difficultyInput, int id) throws SQLException {
+            TextField difficultyInput, int id, CourseDomain course) throws SQLException {
         String name = NameInput.getText();
         String Subject = subjectInput.getText();
         String description = descriptionInput.getText();
@@ -259,6 +264,9 @@ public class Course extends Application {
         String SQL = "UPDATE Courses SET Name='" + name + "', subject='" + Subject + "', description = '" + description
                 + "' ,difficulty = '" + difficulty + "' WHERE ID=" + id + ";";
         con.execute(SQL);
+        int courseIndex = courses.getItems().indexOf(course);
+        CourseDomain changedCourse = new CourseDomain(name, Subject, description, difficulty, id);
+        courses.getItems().set(courseIndex, changedCourse);
 
     }
 
