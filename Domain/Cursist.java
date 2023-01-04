@@ -104,7 +104,7 @@ public class Cursist {
         this.enrolledCourses = enrolledCourses;
     }
     /*getters and setters end */
-    /* test json */
+    /* test js */
 
     public String 
 
