@@ -3,7 +3,7 @@ package Domain;
 import java.sql.Date;
 
 public class Registration {
-    private Curist cursist;
+    private Cursist cursist;
     private CourseDomain course;
     private Date registrationDate;
 
