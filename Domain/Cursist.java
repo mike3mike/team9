@@ -13,7 +13,7 @@ public class Cursist {
     private String city;
     private String country;
     private ArrayList diplomas;
-    private HashMap enrolledCourses;
+    private HashMap<String, CourseDomain> enrolledCourses;
 
     /* this is the constructor */
     public Cursist(String name, String email, String dateOfBirth, String gender, String addres, String city,
@@ -28,9 +28,8 @@ public class Cursist {
         this.diplomas = diplomas;
         this.enrolledCourses = enrolledCourses;
 
-
     }
-    /*getters and setters here */
+    /* getters and setters here */
 
     public String getName() {
         return name;
@@ -103,9 +102,10 @@ public class Cursist {
     public void setEnrolledCourses(HashMap enrolledCourses) {
         this.enrolledCourses = enrolledCourses;
     }
-    /*getters and setters end */
-    /* test js */
+    /* getters and setters end */
 
-    public String 
+    public String courseProgress() {
+
+    }
 
 }
