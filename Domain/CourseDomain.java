@@ -1,6 +1,9 @@
 package Domain;
 
+import java.sql.ResultSet;
 import java.util.ArrayList;
+
+import Database.ConnectionDB;
 
 public class CourseDomain {
     private String name;
@@ -8,7 +11,11 @@ public class CourseDomain {
     private String description;
     private String difficulty;
     private int id;
-    private ArrayList<CourseItem> courseItems;
+    private ArrayList<Module> modules;
+
+    public CourseDomain() {
+
+    }
 
     public CourseDomain(String name, String subject, String description, String difficulty, int id) {
         this.name = name;
@@ -16,7 +23,7 @@ public class CourseDomain {
         this.description = description;
         this.difficulty = difficulty;
         this.id = id;
-        this.courseItems = new ArrayList<CourseItem>();
+        this.modules = new ArrayList<Module>();
     }
 
     public String getDescription() {
@@ -37,6 +44,38 @@ public class CourseDomain {
 
     public String getSubject() {
         return subject;
+    }
+
+    public ArrayList<Module> getModules() {
+        return modules;
+    }
+
+    public ArrayList<CourseDomain> getCourses() {
+        ArrayList<CourseDomain> courses = new ArrayList<>();
+        ConnectionDB con = new ConnectionDB();
+
+        try {
+            ResultSet rs = con.getList("SELECT * FROM Courses");
+            while (rs.next()) {
+                String name = rs.getString("name");
+                String Subject = rs.getString("subject");
+                String description = rs.getString("description");
+                String diffuculty = rs.getString("difficulty");
+
+                int id = rs.getInt("ID");
+                courses.add(new CourseDomain(name, Subject, description, diffuculty, id));
+            }
+            return courses;
+
+        } catch (Exception e) {
+            System.out.println(e);
+            return null;
+        }
+    }
+
+    @Override
+    public String toString() {
+        return name + " " + difficulty;
     }
 
 }

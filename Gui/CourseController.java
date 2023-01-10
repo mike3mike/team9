@@ -21,7 +21,7 @@ import javafx.scene.layout.HBox;
 import javafx.stage.Stage;
 import javafx.util.Callback;
 
-public class Course extends Application {
+public class CourseController extends Application {
 
     private ConnectionDB con = new ConnectionDB();
     private TableView courses = new TableView<>();
@@ -31,7 +31,7 @@ public class Course extends Application {
     private TableColumn<CourseDomain, String> difficultyColumn = new TableColumn<>("difficulty");
     private TableColumn actionCol = new TableColumn("Action");
 
-    public Course() {
+    public CourseController() {
         // constructor for Course where tablecolumns are made
         nameColumn.setCellValueFactory(new PropertyValueFactory<>("name"));
         subjectColumn.setCellValueFactory(new PropertyValueFactory<>("subject"));
