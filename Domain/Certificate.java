@@ -5,13 +5,12 @@ import java.sql.SQLException;
 
 import Database.ConnectionDB;
 
-public class Registration {
+public class Certificate {
     private ConnectionDB con = new ConnectionDB();
 
-    public Registration(int cursistID, int courseID, String registrationDate, int id) {
-
+    public Certificate(int Cursistid, int courseID, String grade, String nameStaff, int id) {
         try {
-            ResultSet sr = con.getList("Select * FROM Cursist WHERE id =" + cursistID);
+            ResultSet sr = con.getList("Select * FROM Cursist WHERE id =" + Cursistid);
             while (sr.next()) {
                 String name = sr.getString("naam");
                 String email = sr.getString("email");
@@ -38,14 +37,24 @@ public class Registration {
         } catch (SQLException e) {
             System.out.println(e);
         }
-        this.registrationDate = registrationDate;
+        this.grade = grade;
         this.id = id;
+        this.Cursistid = Cursistid;
+        this.courseID = courseID;
+        this.nameStaff = nameStaff;
     }
 
+    private int Cursistid;
     private Cursist cursist;
     private CourseDomain course;
-    private String registrationDate;
+    private int courseID;
+    private String grade;
+    private String nameStaff;
     private int id;
+
+    public int getCursistid() {
+        return Cursistid;
+    }
 
     public Cursist getCursist() {
         return cursist;
@@ -55,8 +64,16 @@ public class Registration {
         return course;
     }
 
-    public String getRegistrationDate() {
-        return registrationDate;
+    public int getCourseID() {
+        return courseID;
+    }
+
+    public String getGrade() {
+        return grade;
+    }
+
+    public String getNameStaff() {
+        return nameStaff;
     }
 
     public int getId() {

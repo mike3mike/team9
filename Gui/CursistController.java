@@ -6,6 +6,7 @@ import java.sql.SQLException;
 import Database.ConnectionDB;
 import javafx.application.Application;
 import javafx.collections.ObservableList;
+import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -36,8 +37,8 @@ public class CursistController extends Application {
     public CursistController() {
         nameColumn.setCellValueFactory(new PropertyValueFactory<>("Name"));
         emailColumn.setCellValueFactory(new PropertyValueFactory<>("email"));
-        DateofbirthColumn.setCellValueFactory(new PropertyValueFactory<>("DateofbirthColumn"));
-        genderColumn.setCellValueFactory(new PropertyValueFactory<>("genderColumn"));
+        DateofbirthColumn.setCellValueFactory(new PropertyValueFactory<>("dateOfBirth"));
+        genderColumn.setCellValueFactory(new PropertyValueFactory<>("gender"));
         cityColumn.setCellValueFactory(new PropertyValueFactory<>("city"));
         countryColumn.setCellValueFactory(new PropertyValueFactory<>("country"));
         addresColumn.setCellValueFactory(new PropertyValueFactory<>("addres"));
@@ -50,29 +51,30 @@ public class CursistController extends Application {
 
         try {
 
-            ResultSet rs = con.getList("SELECT * FROM Cursists");
+            ResultSet rs = con.getList("SELECT * FROM Cursist");
             BorderPane layout = new BorderPane();
             Scene printCursists = new Scene(layout);
             // this while loop adds courses to the table
             while (rs.next()) {
-                String name = rs.getString("name");
+                String name = rs.getString("naam");
                 String email = rs.getString("email");
-                String Dateofbirth = rs.getString("Dateofbirth");
-                String gender = rs.getString("gender");
-                String addres = rs.getString("addres");
-                String city = rs.getString("city");
-                String country = rs.getString("country");
+                String Dateofbirth = rs.getString("geboortedatum");
+                String gender = rs.getString("geslacht");
+                String addres = rs.getString("adres");
+                String city = rs.getString("woonplaats");
+                String country = rs.getString("land");
 
-                int id = rs.getInt("ID");
+                int id = rs.getInt("id");
                 Cursists.getItems()
                         .add(new Cursist(name, email, Dateofbirth, gender, addres, city, country, id, null, null));
             }
             layout.setLeft(Cursists);
 
-            Button add = new Button("add new Cursist");
+            Button add = new Button("add new Cursis");
             Button delete = new Button("delete");
+            Button Back = new Button("go back");
             HBox buttons = new HBox();
-            buttons.getChildren().addAll(add, delete);
+            buttons.getChildren().addAll(Back, add, delete);
             add.setOnAction((EventHandler) -> {
                 Stage stage = new Stage();
                 stage.setScene(addCursist());
@@ -81,16 +83,29 @@ public class CursistController extends Application {
             });
             delete.setOnAction((EventHandler) -> {
                 TableViewSelectionModel selectionModel = Cursists.getSelectionModel();
-                ObservableList<CourseDomain> selectedItems = selectionModel.getSelectedItems();
-                CourseDomain id = selectedItems.get(0);
+                ObservableList<Cursist> selectedItems = selectionModel.getSelectedItems();
+                Cursist id = selectedItems.get(0);
                 Cursists.getItems().remove(id);
 
                 try {
-                    deleteCursist(id.getId());
+                    deleteCursist(id.getid());
                 } catch (SQLException e) {
                     buttons.getChildren().add(new Label(e.getLocalizedMessage()));
                 }
 
+            });
+            Back.setOnAction((Action) -> {
+                Stage stage = new Stage();
+                ApplicationController controller = new ApplicationController();
+                try {
+                    controller.start(stage);
+                } catch (Exception e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                }
+                Node node = (Node) Action.getSource();
+                Stage thisStage = (Stage) node.getScene().getWindow();
+                thisStage.close();
             });
 
             layout.setBottom(buttons);
@@ -113,20 +128,20 @@ public class CursistController extends Application {
         TextField cityInput = new TextField();
         TextField countryInput = new TextField();
         TextField addresInput = new TextField();
-        layout.add(new Label("Name"), 1, 1);
+        layout.add(new Label("naam"), 1, 1);
         layout.add(NameInput, 1, 2);
-        layout.add(new Label("Email"), 2, 1);
+        layout.add(new Label("email"), 2, 1);
         layout.add(emailInput, 2, 2);
-        layout.add(new Label("Date of birth"), 3, 1);
+        layout.add(new Label("geboortedatum"), 3, 1);
         layout.add(DOBInput, 3, 2);
-        layout.add(new Label("gender"), 4, 1);
+        layout.add(new Label("geslacht"), 4, 1);
         layout.add(genderInput, 4, 2);
-        layout.add(new Label("City"), 5, 1);
+        layout.add(new Label("woonplaats"), 5, 1);
         layout.add(cityInput, 5, 2);
-        layout.add(new Label("Country"), 5, 1);
-        layout.add(countryInput, 5, 2);
-        layout.add(new Label("Addres"), 5, 1);
-        layout.add(addresInput, 5, 2);
+        layout.add(new Label("land"), 6, 1);
+        layout.add(countryInput, 6, 2);
+        layout.add(new Label("Adres"), 7, 1);
+        layout.add(addresInput, 7, 2);
 
         Button button = new Button("verzenden");
         layout.add(button, 1, 5);
@@ -160,24 +175,32 @@ public class CursistController extends Application {
         String addres = addresInput.getText();
         String city = cityInput.getText();
         // adding course to database
-        String SQL = "INSERT INTO Cursist (name,email,DateOfBirth,gender,country,addres,city)VALUES ('" + name + "','"
+        String SQL = "INSERT INTO Cursist (naam,email,geboortedatum,geslacht,land,adres,woonplaats)VALUES ('" + name
+                + "','"
                 + email
-                + "','" + DateOfBirth + "','" + gender + "','" + country + "','" + addres + "','" + "','" + city + "')";
+                + "','" + DateOfBirth + "','" + gender + "','" + country + "','" + addres + "','" + city + "')";
         con.execute(SQL);
         // adding course to table
         try {
             ResultSet rs = con
                     .getList(
-                            "SELECT * FROM Cursist WHERE name = " + name + " AND difficulty = '" + email + "' ");
+                            "SELECT * FROM Cursist WHERE naam = '" + name + "' AND email = '" + email + "'");
             while (rs.next()) {
+                String Name = rs.getString("naam");
+                String Email = rs.getString("email");
+                String Dateofbirth = rs.getString("geboortedatum");
+                String Gender = rs.getString("geslacht");
+                String Addres = rs.getString("adres");
+                String City = rs.getString("woonplaats");
+                String Country = rs.getString("land");
 
-                int id = rs.getInt("ID");
+                int id = rs.getInt("id");
                 Cursists.getItems()
-                        .add(new Cursist(name, email, DateOfBirth, gender, addres, city, country, id, null, null));
-
+                        .add(new Cursist(Name, Email, Dateofbirth, Gender, Addres, City, Country, id,
+                                null, null));
             }
         } catch (SQLException e) {
-            System.out.println(e);
+            System.out.println();
             // TODO: handle exception
         }
 
@@ -192,7 +215,7 @@ public class CursistController extends Application {
     }
 
     private void deleteCursist(int id) throws SQLException {
-        String SQL = "DELETE FROM Cursist WHERE ID=" + id + ";";
+        String SQL = "DELETE FROM Cursist WHERE id=" + id + ";";
         con.execute(SQL);
 
     }

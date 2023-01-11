@@ -2,10 +2,14 @@ package Gui;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+
+import javax.swing.Action;
+
 import Database.ConnectionDB;
 import Domain.CourseDomain;
 import javafx.application.Application;
 import javafx.collections.ObservableList;
+import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -79,15 +83,15 @@ public class CourseController extends Application {
 
         try {
 
-            ResultSet rs = con.getList("SELECT * FROM Courses");
+            ResultSet rs = con.getList("SELECT * FROM cursus");
             BorderPane layout = new BorderPane();
             Scene printCourses = new Scene(layout);
             // this while loop adds courses to the table
             while (rs.next()) {
-                String name = rs.getString("name");
-                String Subject = rs.getString("subject");
-                String description = rs.getString("description");
-                String diffuculty = rs.getString("difficulty");
+                String name = rs.getString("naam");
+                String Subject = rs.getString("onderwerp");
+                String description = rs.getString("introductietekst");
+                String diffuculty = rs.getString("niveau");
 
                 int id = rs.getInt("ID");
                 courses.getItems().add(new CourseDomain(name, Subject, description, diffuculty, id));
@@ -97,8 +101,9 @@ public class CourseController extends Application {
 
             Button add = new Button("add new Course");
             Button delete = new Button("delete");
+            Button Back = new Button("go back");
             HBox buttons = new HBox();
-            buttons.getChildren().addAll(add, delete);
+            buttons.getChildren().addAll(Back, add, delete);
             add.setOnAction((EventHandler) -> {
                 Stage stage = new Stage();
                 stage.setScene(addCourse());
@@ -117,6 +122,19 @@ public class CourseController extends Application {
                     buttons.getChildren().add(new Label(e.getLocalizedMessage()));
                 }
 
+            });
+            Back.setOnAction((Action) -> {
+                Stage stage = new Stage();
+                ApplicationController controller = new ApplicationController();
+                try {
+                    controller.start(stage);
+                } catch (Exception e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                }
+                Node node = (Node) Action.getSource();
+                Stage thisStage = (Stage) node.getScene().getWindow();
+                thisStage.close();
             });
 
             layout.setBottom(buttons);
@@ -137,7 +155,7 @@ public class CourseController extends Application {
         TextField subjectInput = new TextField();
         TextField descriptionInput = new TextField();
         TextField difficultyInput = new TextField();
-        layout.add(new Label("Name"), 1, 1);
+        layout.add(new Label("naam"), 1, 1);
         layout.add(NameInput, 1, 2);
         layout.add(new Label("Subject"), 2, 1);
         layout.add(subjectInput, 2, 2);
@@ -165,8 +183,8 @@ public class CourseController extends Application {
     // this method is a submit method for the addCourse method. It excecutes an
     // sql query to add the course to the database and it retrieves back the course
     // from the database so it can be added to the table
-    // (the course is retrieved from the database because the id gets
-    // autoincremented in the databases)
+    // (the course is retrieved from the database again because the id gets
+    // autoincremented in the database)
     private void extracted(TextField NameInput, TextField subjectInput, TextField descriptionInput,
             TextField difficultyInput) throws SQLException {
         String name = "'" + NameInput.getText() + "'";
@@ -174,21 +192,21 @@ public class CourseController extends Application {
         String description = descriptionInput.getText();
         String difficulty = difficultyInput.getText();
         // adding course to database
-        String SQL = "INSERT INTO Courses (name,subject,description,difficulty)VALUES (" + name + ",'" + Subject
+        String SQL = "INSERT INTO cursus (naam,onderwerp,introductietekst,niveau)VALUES (" + name + ",'" + Subject
                 + "','" + description + "','" + difficulty + "')";
         con.execute(SQL);
         // adding course to table
         try {
             ResultSet rs = con
                     .getList(
-                            "SELECT * FROM Courses WHERE name = " + name + " AND difficulty = '" + difficulty + "' ");
+                            "SELECT * FROM cursus WHERE naam = " + name + " AND niveau = '" + difficulty + "' ");
             while (rs.next()) {
-                name = rs.getString("name");
-                Subject = rs.getString("subject");
-                description = rs.getString("description");
-                String diffuculty = rs.getString("difficulty");
+                name = rs.getString("naam");
+                Subject = rs.getString("onderwerp");
+                description = rs.getString("introductietekst");
+                String diffuculty = rs.getString("niveau");
 
-                int id = rs.getInt("ID");
+                int id = rs.getInt("id");
                 courses.getItems().add(new CourseDomain(name, Subject, description, diffuculty, id));
 
             }
@@ -211,13 +229,13 @@ public class CourseController extends Application {
             GridPane layout = new GridPane();
             int id = course.getId();
 
-            ResultSet rs = con.getList("SELECT * FROM Courses where ID = " + id);
+            ResultSet rs = con.getList("SELECT * FROM cursus where ID = " + id);
 
             while (rs.next()) {
-                TextField NameInput = new TextField(rs.getString("name"));
-                TextField subjectInput = new TextField(rs.getString("subject"));
-                TextField descriptionInput = new TextField(rs.getString("description"));
-                TextField difficultyInput = new TextField(rs.getString("difficulty"));
+                TextField NameInput = new TextField(rs.getString("naam"));
+                TextField subjectInput = new TextField(rs.getString("onderwerp"));
+                TextField descriptionInput = new TextField(rs.getString("introductietekst"));
+                TextField difficultyInput = new TextField(rs.getString("niveau"));
                 layout.add(new Label("Name"), 1, 1);
                 layout.add(NameInput, 1, 2);
                 layout.add(new Label("Subject"), 2, 1);
@@ -261,8 +279,9 @@ public class CourseController extends Application {
         String Subject = subjectInput.getText();
         String description = descriptionInput.getText();
         String difficulty = difficultyInput.getText();
-        String SQL = "UPDATE Courses SET Name='" + name + "', subject='" + Subject + "', description = '" + description
-                + "' ,difficulty = '" + difficulty + "' WHERE ID=" + id + ";";
+        String SQL = "UPDATE cursus SET naam='" + name + "', onderwerp='" + Subject + "', introductietekst = '"
+                + description
+                + "' ,niveau = '" + difficulty + "' WHERE id=" + id + ";";
         con.execute(SQL);
         int courseIndex = courses.getItems().indexOf(course);
         CourseDomain changedCourse = new CourseDomain(name, Subject, description, difficulty, id);
@@ -271,7 +290,7 @@ public class CourseController extends Application {
     }
 
     private void deleteCourse(int id) throws SQLException {
-        String SQL = "DELETE FROM Courses WHERE ID=" + id + ";";
+        String SQL = "DELETE FROM cursus WHERE id=" + id + ";";
         con.execute(SQL);
 
     }

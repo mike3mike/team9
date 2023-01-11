@@ -106,7 +106,7 @@ public class Cursist {
     }
     /* getters and setters end */
 
-    public int getID() {
+    public int getid() {
         return id;
     }
 
@@ -114,4 +114,8 @@ public class Cursist {
 
     // }
 
+    @Override
+    public String toString() {
+        return name;
+    }
 }

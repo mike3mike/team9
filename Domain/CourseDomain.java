@@ -13,10 +13,6 @@ public class CourseDomain {
     private int id;
     private ArrayList<Module> modules;
 
-    public CourseDomain() {
-
-    }
-
     public CourseDomain(String name, String subject, String description, String difficulty, int id) {
         this.name = name;
         this.subject = subject;

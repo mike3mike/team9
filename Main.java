@@ -3,7 +3,7 @@ import javafx.application.Application;
 public class Main {
     public static void main(String[] args) {
 
-        Application.launch(Gui.CourseController.class);
+        Application.launch(Gui.ApplicationController.class);
 
     }
 
