@@ -8,7 +8,6 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
-import Gui.IndexController;
 
 public class ApplicationController extends Application {
     Scene index;
@@ -16,6 +15,7 @@ public class ApplicationController extends Application {
     Scene cursists = new CursistController().printCursists();
     Scene certificates = new CertificateController().printCertificate();
     Scene registrations = new RegistrationController().printRegistration();
+    Scene modules = new ModuleController().printCursists();
 
     Stage window;
 
@@ -43,7 +43,11 @@ public class ApplicationController extends Application {
         certificates.setOnAction((Action) -> {
             window.setScene(this.certificates);
         });
-        buttons.getChildren().addAll(Courses, cursists, registrations, certificates);
+        Button modules = new Button("modules zien en wijzigen");
+        modules.setOnAction((Action) -> {
+            window.setScene(this.modules);
+        });
+        buttons.getChildren().addAll(Courses, cursists, registrations, certificates, modules);
         list.getChildren().add(buttons);
         layout.setCenter(list);
         this.index = new Scene(layout);

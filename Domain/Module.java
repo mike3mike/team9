@@ -6,16 +6,17 @@ public class Module extends ContentItem {
     private String version;
     private String contact;
     private String contactEmail;
-    private int number;
+    private int id;
 
-    public Module(int iD, String publishDate, Domain.status status, String title, String description,
-            CourseDomain course, String version, String contact, String contactEmail, int number) {
-        super(iD, publishDate, status, title, description);
+    public Module(int ContentItemiD, int id, String publishDate, String status, String title, String description,
+            String version, String contact, String contactEmail) {
+        super(ContentItemiD, publishDate, status, title, description);
         this.course = course;
         this.version = version;
         this.contact = contact;
         this.contactEmail = contactEmail;
-        this.number = number;
+        this.id = id;
+
     }
 
     public CourseDomain getCourse() {
@@ -32,6 +33,10 @@ public class Module extends ContentItem {
 
     public String getContactEmail() {
         return contactEmail;
+    }
+
+    public int getId() {
+        return id;
     }
 
 }

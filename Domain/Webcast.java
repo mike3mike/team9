@@ -6,7 +6,7 @@ public class Webcast extends ContentItem {
     private String organisation;
     private String URL;
 
-    public Webcast(int iD, String publishDate, Domain.status status, String title, String description, String uRL,
+    public Webcast(int iD, String publishDate, String status, String title, String description, String URL,
             String speaker,
             String organisation) {
         super(iD, publishDate, status, title, description);

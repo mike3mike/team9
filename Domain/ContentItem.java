@@ -1,18 +1,14 @@
 package Domain;
 
-enum status {
-    concept, actief, gearchiveerd
-};
-
 public class ContentItem {
 
     private int ID;
     private String publishDate;
-    private status status;
+    private String status;
     private String title;
     private String description;
 
-    public ContentItem(int iD, String publishDate, Domain.status status, String title, String description) {
+    public ContentItem(int iD, String publishDate, String status, String title, String description) {
         this.ID = iD;
         this.publishDate = publishDate;
         this.status = status;
@@ -28,7 +24,7 @@ public class ContentItem {
         return publishDate;
     }
 
-    public status getStatus() {
+    public String getStatus() {
         return status;
     }
 
