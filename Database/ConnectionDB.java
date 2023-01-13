@@ -33,7 +33,8 @@ public class ConnectionDB {
         try {
             return con.createStatement().executeQuery(SQL);
         } catch (SQLException e) {
-            // TODO Auto-generated catch block
+
+            System.out.println(e);
             return null;
         }
     }

@@ -6,18 +6,22 @@ import java.sql.SQLException;
 import Database.ConnectionDB;
 import javafx.application.Application;
 import javafx.collections.ObservableList;
+import javafx.event.EventHandler;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.control.DatePicker;
 import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TableView.TableViewSelectionModel;
 import javafx.scene.control.TextField;
+import javafx.scene.control.TreeView;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import Domain.CourseDomain;
 import Domain.Cursist;
@@ -70,16 +74,27 @@ public class CursistController extends Application {
             }
             layout.setLeft(Cursists);
 
-            Button add = new Button("add new Cursis");
-            Button delete = new Button("delete");
-            Button Back = new Button("go back");
+            Button add = new Button("voeg cursist toe");
+            Button delete = new Button("verwijder");
+            Button Back = new Button("ga terug");
+            Button view = new Button("bekijk cursist");
             HBox buttons = new HBox();
-            buttons.getChildren().addAll(Back, add, delete);
+            buttons.getChildren().addAll(Back, add, view, delete);
+
             add.setOnAction((EventHandler) -> {
                 Stage stage = new Stage();
                 stage.setScene(addCursist());
                 stage.show();
 
+            });
+
+            view.setOnAction((EventHandler) -> {
+                TableViewSelectionModel selectionModel = Cursists.getSelectionModel();
+                ObservableList<Cursist> selectedItems = selectionModel.getSelectedItems();
+                Cursist id = selectedItems.get(0);
+                Stage stage = new Stage();
+                stage.setScene(viewCursist(id));
+                stage.show();
             });
             delete.setOnAction((EventHandler) -> {
                 TableViewSelectionModel selectionModel = Cursists.getSelectionModel();
@@ -123,7 +138,7 @@ public class CursistController extends Application {
         GridPane layout = new GridPane();
         TextField NameInput = new TextField();
         TextField emailInput = new TextField();
-        TextField DOBInput = new TextField();
+        DatePicker DOBInput = new DatePicker();
         TextField genderInput = new TextField();
         TextField cityInput = new TextField();
         TextField countryInput = new TextField();
@@ -149,7 +164,9 @@ public class CursistController extends Application {
 
             try {
                 extracted(NameInput, emailInput, DOBInput, genderInput, cityInput, countryInput, addresInput);
-
+                Node node = (Node) eventHandler.getSource();
+                Stage thisStage = (Stage) node.getScene().getWindow();
+                thisStage.close();
             } catch (SQLException e) {
                 layout.add(new Label(e.getMessage()), 2, 5);
 
@@ -164,12 +181,12 @@ public class CursistController extends Application {
     // from the database so it can be added to the table
     // (the course is retrieved from the database because the id gets
     // autoincremented in the databases)
-    private void extracted(TextField NameInput, TextField emailInput, TextField DOBInput,
+    private void extracted(TextField NameInput, TextField emailInput, DatePicker DOBInput,
             TextField genderInput, TextField cityInput, TextField countryInput, TextField addresInput)
             throws SQLException {
         String name = NameInput.getText();
         String email = emailInput.getText();
-        String DateOfBirth = DOBInput.getText();
+        String DateOfBirth = DOBInput.getValue().toString();
         String gender = genderInput.getText();
         String country = countryInput.getText();
         String addres = addresInput.getText();
@@ -204,13 +221,24 @@ public class CursistController extends Application {
             // TODO: handle exception
         }
 
-        NameInput.clear();
-        emailInput.clear();
-        DOBInput.clear();
-        genderInput.clear();
-        cityInput.clear();
-        countryInput.clear();
-        addresInput.clear();
+    }
+
+    private Scene viewCursist(Cursist cursist) {
+
+        VBox layout = new VBox();
+        // Cursistlabels.getChildren().addAll(new Label("naam"), new Label("email"), new
+        // Label("geboortedatum"),
+        // new Label("geslacht"), new Label("adress"), new Label("woonplaats"), new
+        // Label("land"));
+        TableView view = new TableView<>();
+        view.getColumns().addAll(nameColumn, emailColumn, DateofbirthColumn, genderColumn, cityColumn,
+                countryColumn);
+
+        view.getItems().add(cursist);
+        TreeView modules = cursist.getEnrolledCourses();
+        layout.getChildren().addAll(view, modules);
+
+        return new Scene(layout);
 
     }
 
