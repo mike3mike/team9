@@ -36,7 +36,7 @@ public class CourseController extends Application {
     private TableColumn<CourseDomain, String> subjectColumn = new TableColumn<>("subject");
     private TableColumn<CourseDomain, String> descriptionColumn = new TableColumn<>("description");
     private TableColumn<CourseDomain, String> difficultyColumn = new TableColumn<>("difficulty");
-    private TableColumn actionCol = new TableColumn("Action");
+
     private ArrayList<Domain.Module> modules = new ArrayList<>();
 
     public CourseController() {
@@ -45,40 +45,8 @@ public class CourseController extends Application {
         subjectColumn.setCellValueFactory(new PropertyValueFactory<>("subject"));
         descriptionColumn.setCellValueFactory(new PropertyValueFactory<>("description"));
         difficultyColumn.setCellValueFactory(new PropertyValueFactory<>("difficulty"));
-        // column Action for edit buttons made for every course in the list
-        Callback<TableColumn<CourseDomain, String>, TableCell<CourseDomain, String>> cellFactory = new Callback<TableColumn<CourseDomain, String>, TableCell<CourseDomain, String>>() {
-            @Override
-            public TableCell call(final TableColumn<CourseDomain, String> param) {
-                final TableCell<CourseDomain, String> cell = new TableCell<CourseDomain, String>() {
 
-                    final Button btn = new Button("edit");
-
-                    @Override
-                    public void updateItem(String item, boolean empty) {
-                        super.updateItem(item, empty);
-                        if (empty) {
-                            setGraphic(null);
-                            setText(null);
-                        } else {
-                            btn.setOnAction(event -> {
-                                Stage stage = new Stage();
-                                CourseDomain course = getTableView().getItems().get(getIndex());
-
-                                stage.setScene(editCourse(course));
-                                stage.show();
-
-                            });
-                            setGraphic(btn);
-                            setText(null);
-                        }
-                    }
-                };
-                return cell;
-            }
-        };
-
-        actionCol.setCellFactory(cellFactory);
-        courses.getColumns().addAll(nameColumn, subjectColumn, descriptionColumn, difficultyColumn, actionCol);
+        courses.getColumns().addAll(nameColumn, subjectColumn, descriptionColumn, difficultyColumn);
         try {
 
             ResultSet rs = con.getList(
@@ -128,9 +96,10 @@ public class CourseController extends Application {
 
             Button add = new Button("add new Course");
             Button delete = new Button("delete");
+            Button edit = new Button("edit");
             Button Back = new Button("go back");
             HBox buttons = new HBox();
-            buttons.getChildren().addAll(Back, add, delete);
+            buttons.getChildren().addAll(Back, add, delete, edit);
             add.setOnAction((EventHandler) -> {
                 addCourse();
 
@@ -146,6 +115,25 @@ public class CourseController extends Application {
                 } catch (SQLException e) {
                     buttons.getChildren().add(new Label(e.getLocalizedMessage()));
                 }
+
+            });
+            edit.setOnAction((EventHandler) -> {
+                TableViewSelectionModel selectionModel = courses.getSelectionModel();
+                ObservableList<CourseDomain> selectedItems = selectionModel.getSelectedItems();
+                CourseDomain id = selectedItems.get(0);
+                // courses.getItems().remove(id);
+                Stage stage = new Stage();
+                editCourse(id);
+                stage.setScene(editCourse(id));
+                stage.show();
+                courses.refresh();
+
+
+                // try {
+                //     deleteCourse(id.getId());
+                // } catch (SQLException e) {
+                //     buttons.getChildren().add(new Label(e.getLocalizedMessage()));
+                // }
 
             });
             Back.setOnAction((Action) -> {
