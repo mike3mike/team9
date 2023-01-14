@@ -12,6 +12,7 @@ import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.ChoiceBox;
+import javafx.scene.control.DatePicker;
 import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
@@ -111,8 +112,8 @@ public class RegistrationController extends Application {
             });
             delete.setOnAction((EventHandler) -> {
                 TableViewSelectionModel selectionModel = registrations.getSelectionModel();
-                ObservableList<CourseDomain> selectedItems = selectionModel.getSelectedItems();
-                CourseDomain id = selectedItems.get(0);
+                ObservableList<Registration> selectedItems = selectionModel.getSelectedItems();
+                Registration id = selectedItems.get(0);
                 registrations.getItems().remove(id);
 
                 try {
@@ -157,7 +158,7 @@ public class RegistrationController extends Application {
         for (int i = 0; cursists.size() > i; i++) {
             choiceBoxCursists.getItems().add(cursists.get(i));
         }
-        TextField registrationDateInput = new TextField();
+        DatePicker registrationDateInput = new DatePicker();
         layout.add(new Label("Course"), 1, 1);
         layout.add(choiceBoxCourses, 1, 2);
         layout.add(new Label("Cursist"), 2, 1);
@@ -186,9 +187,9 @@ public class RegistrationController extends Application {
     // from the database so it can be added to the table
     // (the course is retrieved from the database because the id gets
     // autoincremented in the databases)
-    private void extracted(ChoiceBox choiceBoxCourses, ChoiceBox choiceBoxCursists, TextField registrationDateInput)
+    private void extracted(ChoiceBox choiceBoxCourses, ChoiceBox choiceBoxCursists, DatePicker registrationDateInput)
             throws SQLException {
-        String date = registrationDateInput.getText();
+        String date = registrationDateInput.getValue().toString();
         CourseDomain course = (CourseDomain) choiceBoxCourses.getValue();
         Cursist cursist = (Cursist) choiceBoxCursists.getValue();
         int CourseID = course.getId();
@@ -218,12 +219,10 @@ public class RegistrationController extends Application {
             // TODO: handle exception
         }
 
-        registrationDateInput.clear();
-
     }
 
     private void deleteregistrations(int id) throws SQLException {
-        String SQL = "DELETE FROM registration WHERE ID=" + id + ";";
+        String SQL = "DELETE FROM inschrijving WHERE ID=" + id + ";";
         con.execute(SQL);
 
     }

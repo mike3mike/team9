@@ -7,6 +7,7 @@ import Database.ConnectionDB;
 import javafx.application.Application;
 import javafx.collections.ObservableList;
 import javafx.event.EventHandler;
+import javafx.geometry.Insets;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
@@ -217,7 +218,7 @@ public class CursistController extends Application {
                                 null, null));
             }
         } catch (SQLException e) {
-            System.out.println();
+            System.out.println(e);
             // TODO: handle exception
         }
 
@@ -225,20 +226,26 @@ public class CursistController extends Application {
 
     private Scene viewCursist(Cursist cursist) {
 
+        BorderPane structure = new BorderPane();
+
         VBox layout = new VBox();
-        // Cursistlabels.getChildren().addAll(new Label("naam"), new Label("email"), new
-        // Label("geboortedatum"),
-        // new Label("geslacht"), new Label("adress"), new Label("woonplaats"), new
-        // Label("land"));
+
         TableView view = new TableView<>();
         view.getColumns().addAll(nameColumn, emailColumn, DateofbirthColumn, genderColumn, cityColumn,
                 countryColumn);
 
         view.getItems().add(cursist);
-        TreeView modules = cursist.getEnrolledCourses();
-        layout.getChildren().addAll(view, modules);
+        view.autosize();
 
-        return new Scene(layout);
+        HBox treeviews = new HBox();
+        TreeView modules = cursist.getEnrolledCourses();
+        TreeView webcasts = cursist.viewedWebcasts();
+        treeviews.getChildren().addAll(webcasts, modules);
+        layout.getChildren().addAll(view, treeviews);
+        structure.setCenter(layout);
+        layout.setMargin(view, new Insets(5));
+
+        return new Scene(structure, 400, 350);
 
     }
 

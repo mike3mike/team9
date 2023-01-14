@@ -118,7 +118,7 @@ public class Cursist {
                 while (rs.next()) {
                     String module = rs.getString("titel");
                     int progress = rs.getInt("progressie");
-                    course.getChildren().add(new TreeItem<>(module + " progressie: " + progress));
+                    course.getChildren().add(new TreeItem<>(module + " progressie: " + progress + "%"));
 
                 }
             } catch (Exception e) {
@@ -128,6 +128,30 @@ public class Cursist {
         }
         TreeView view = new TreeView<>();
         view.setRoot(courses);
+
+        return view;
+    }
+
+    public TreeView viewedWebcasts() {
+
+        TreeItem webcasts = new TreeItem("webcasts");
+
+        try {
+            ResultSet rs = con.getList(
+                    "SELECT titel, progressie from webcast INNER JOIN contentItem on contentItemid = contentItem.id INNER JOIN progressie on webcast.id = progressie.webcastID WHERE cursistID="
+                            + getid());
+            while (rs.next()) {
+                String module = rs.getString("titel");
+                int progress = rs.getInt("progressie");
+                webcasts.getChildren().add(new TreeItem<>(module + " progressie: " + progress + "%"));
+
+            }
+        } catch (Exception e) {
+            System.out.println(e);
+        }
+
+        TreeView view = new TreeView<>();
+        view.setRoot(webcasts);
 
         return view;
     }

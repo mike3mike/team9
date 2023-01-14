@@ -3,14 +3,17 @@ package Gui;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
+import javax.print.DocFlavor.STRING;
+import javax.sound.sampled.SourceDataLine;
+
 import Database.ConnectionDB;
 import javafx.application.Application;
 import javafx.collections.ObservableList;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
-import javafx.scene.control.CheckBox;
 import javafx.scene.control.ChoiceBox;
+import javafx.scene.control.DatePicker;
 import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
@@ -21,8 +24,6 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.stage.Stage;
-import Domain.CourseDomain;
-import Domain.Cursist;
 
 public class ModuleController extends Application {
     private ConnectionDB con = new ConnectionDB();
@@ -69,6 +70,7 @@ public class ModuleController extends Application {
                 String contact = rs.getString("naamContactpersoon");
                 String contactEmail = rs.getString("email");
                 int id = rs.getInt("id");
+                System.out.println(id);
                 int ContentItemID = rs.getInt("contentItemid");
 
                 Modules.getItems()
@@ -90,13 +92,13 @@ public class ModuleController extends Application {
 
             });
             delete.setOnAction((EventHandler) -> {
-                TableViewSelectionModel selectionModel = Modules.getSelectionModel();
+                TableViewSelectionModel<Domain.Module> selectionModel = Modules.getSelectionModel();
                 ObservableList<Domain.Module> selectedItems = selectionModel.getSelectedItems();
                 Domain.Module id = selectedItems.get(0);
                 Modules.getItems().remove(id);
 
                 try {
-                    deleteCursist(id.getId());
+                    deleteCursist(id.getModuleId());
                 } catch (SQLException e) {
                     buttons.getChildren().add(new Label(e.getLocalizedMessage()));
                 }
@@ -135,7 +137,7 @@ public class ModuleController extends Application {
         statusChoiceBox.getItems().add("concept");
         statusChoiceBox.getItems().add("actief");
         statusChoiceBox.getItems().add("gearchiveerd");
-        TextField publishDateInput = new TextField();
+        DatePicker publishDateInput = new DatePicker();
         TextField versionInput = new TextField();
         TextField contactInput = new TextField();
         TextField contactEmail = new TextField();
@@ -161,11 +163,12 @@ public class ModuleController extends Application {
             try {
                 extracted(titleInput, descriptionInput, statusChoiceBox, publishDateInput, versionInput, contactInput,
                         contactEmail);
-                Node node = (Node) eventHandler.getSource();
-                Stage thisStage = (Stage) node.getScene().getWindow();
-                thisStage.close();
+                // Node node = (Node) eventHandler.getSource();
+                // Stage thisStage = (Stage) node.getScene().getWindow();
+                // thisStage.close();
             } catch (SQLException e) {
-                layout.add(new Label(e.getMessage()), 2, 5);
+                System.out.println(e);
+                layout.add(new Label(e.getLocalizedMessage()), 2, 5);
 
             }
         });
@@ -179,12 +182,12 @@ public class ModuleController extends Application {
     // (the course is retrieved from the database because the id gets
     // autoincremented in the databases)
     private void extracted(TextField titleInput, TextField descriptionInput, ChoiceBox statusInput,
-            TextField publishDateInput, TextField versionInput, TextField contactInput, TextField contactEmailInput)
+            DatePicker publishDateInput, TextField versionInput, TextField contactInput, TextField contactEmailInput)
             throws SQLException {
         String title = titleInput.getText();
         String description = descriptionInput.getText();
         String status = (String) statusInput.getValue();
-        String publishDate = publishDateInput.getText();
+        String publishDate = publishDateInput.getValue().toString();
         String version = versionInput.getText();
         String contact = contactInput.getText();
         String contactEmail = contactEmailInput.getText();
@@ -200,12 +203,14 @@ public class ModuleController extends Application {
             while (rs.next()) {
                 int Contentid = rs.getInt("id");
                 SQL = "INSERT INTO module (versie,contentItemid,naamContactpersoon,email)VALUES ('" + version
-                        + "','" + Contentid + "'"
+                        + "','" + Contentid + "','"
                         + contact
                         + "','" + contactEmail + "')";
+                con.execute(SQL);
+
             }
         } catch (Exception e) {
-            // TODO: handle exception
+            System.out.println(e);
         }
 
         // adding course to table
@@ -231,7 +236,7 @@ public class ModuleController extends Application {
                                 contactEmail));
             }
         } catch (SQLException e) {
-            System.out.println();
+            System.out.println(e);
             // TODO: handle exception
         }
 

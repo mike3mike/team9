@@ -35,8 +35,13 @@ public class Module extends ContentItem {
         return contactEmail;
     }
 
-    public int getId() {
+    public int getModuleId() {
         return id;
+    }
+
+    @Override
+    public String toString() {
+        return super.getTitle();
     }
 
 }

@@ -2,6 +2,7 @@ package Gui;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 
 import javax.swing.Action;
 
@@ -12,6 +13,7 @@ import javafx.collections.ObservableList;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
@@ -22,6 +24,7 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import javafx.util.Callback;
 
@@ -34,6 +37,7 @@ public class CourseController extends Application {
     private TableColumn<CourseDomain, String> descriptionColumn = new TableColumn<>("description");
     private TableColumn<CourseDomain, String> difficultyColumn = new TableColumn<>("difficulty");
     private TableColumn actionCol = new TableColumn("Action");
+    private ArrayList<Domain.Module> modules = new ArrayList<>();
 
     public CourseController() {
         // constructor for Course where tablecolumns are made
@@ -75,6 +79,29 @@ public class CourseController extends Application {
 
         actionCol.setCellFactory(cellFactory);
         courses.getColumns().addAll(nameColumn, subjectColumn, descriptionColumn, difficultyColumn, actionCol);
+        try {
+
+            ResultSet rs = con.getList(
+                    "SELECT * from module INNER JOIN contentItem on contentItemid = contentItem.id WHERE cursusID IS NULL");
+            // this while loop adds courses to the array
+            while (rs.next()) {
+                String title = rs.getString("titel");
+                String description = rs.getString("beschrijving");
+                String publishDate = rs.getString("publicatiedatum");
+                String status = rs.getString("status");
+                String version = rs.getString("versie");
+                String contact = rs.getString("naamContactpersoon");
+                String contactEmail = rs.getString("email");
+                int id = rs.getInt("id");
+                int ContentItemID = rs.getInt("contentItemid");
+
+                modules.add(new Domain.Module(ContentItemID, id, publishDate, status, title, description, version,
+                        contact,
+                        contactEmail));
+            }
+        } catch (Exception e) {
+            System.out.println(e);
+        }
 
     }
 
@@ -105,9 +132,7 @@ public class CourseController extends Application {
             HBox buttons = new HBox();
             buttons.getChildren().addAll(Back, add, delete);
             add.setOnAction((EventHandler) -> {
-                Stage stage = new Stage();
-                stage.setScene(addCourse());
-                stage.show();
+                addCourse();
 
             });
             delete.setOnAction((EventHandler) -> {
@@ -148,7 +173,8 @@ public class CourseController extends Application {
     }
 
     // this method returns a Scene where you can submit a form that adds a course
-    public Scene addCourse() {
+    public void addCourse() {
+        Stage stage = new Stage();
 
         GridPane layout = new GridPane();
         TextField NameInput = new TextField();
@@ -167,58 +193,78 @@ public class CourseController extends Application {
         Button button = new Button("verzenden");
         layout.add(button, 1, 5);
         button.setOnAction((eventHandler) -> {
-
+            // this try catch is to submit the course. It excecutes an
+            // sql query to add the course to the database and it retrieves back the course
+            // from the database so it can be added to the table
+            // (the course is retrieved from the database again because the id gets
+            // autoincremented in the database)
             try {
-                extracted(NameInput, subjectInput, descriptionInput, difficultyInput);
+                String name = "'" + NameInput.getText() + "'";
+                String Subject = subjectInput.getText();
+                String description = descriptionInput.getText();
+                String difficulty = difficultyInput.getText();
+                // adding course to database
+                String SQL = "INSERT INTO cursus (naam,onderwerp,introductietekst,niveau)VALUES (" + name + ",'"
+                        + Subject
+                        + "','" + description + "','" + difficulty + "')";
+                con.execute(SQL);
+                // adding course to table
+                try {
+                    ResultSet rs = con
+                            .getList(
+                                    "SELECT * FROM cursus WHERE naam = " + name + " AND niveau = '" + difficulty
+                                            + "' ");
+                    while (rs.next()) {
+                        name = rs.getString("naam");
+                        Subject = rs.getString("onderwerp");
+                        description = rs.getString("introductietekst");
+                        String diffuculty = rs.getString("niveau");
 
+                        int id = rs.getInt("id");
+                        courses.getItems().add(new CourseDomain(name, Subject, description, diffuculty, id));
+                        stage.setScene(AddModule(id));
+
+                    }
+                } catch (SQLException e) {
+                    System.out.println(e);
+                    // TODO: handle exception
+                }
             } catch (SQLException e) {
-                layout.add(new Label(e.getMessage()), 2, 5);
+                Label errormessage = new Label();
+                errormessage.setText(e.getMessage());
+                layout.add(errormessage, 2, 5);
 
             }
         });
         Scene addCourse = new Scene(layout);
-        return addCourse;
+        stage.setScene(addCourse);
+        stage.show();
     }
 
-    // this method is a submit method for the addCourse method. It excecutes an
-    // sql query to add the course to the database and it retrieves back the course
-    // from the database so it can be added to the table
-    // (the course is retrieved from the database again because the id gets
-    // autoincremented in the database)
-    private void extracted(TextField NameInput, TextField subjectInput, TextField descriptionInput,
-            TextField difficultyInput) throws SQLException {
-        String name = "'" + NameInput.getText() + "'";
-        String Subject = subjectInput.getText();
-        String description = descriptionInput.getText();
-        String difficulty = difficultyInput.getText();
-        // adding course to database
-        String SQL = "INSERT INTO cursus (naam,onderwerp,introductietekst,niveau)VALUES (" + name + ",'" + Subject
-                + "','" + description + "','" + difficulty + "')";
-        con.execute(SQL);
-        // adding course to table
-        try {
-            ResultSet rs = con
-                    .getList(
-                            "SELECT * FROM cursus WHERE naam = " + name + " AND niveau = '" + difficulty + "' ");
-            while (rs.next()) {
-                name = rs.getString("naam");
-                Subject = rs.getString("onderwerp");
-                description = rs.getString("introductietekst");
-                String diffuculty = rs.getString("niveau");
-
-                int id = rs.getInt("id");
-                courses.getItems().add(new CourseDomain(name, Subject, description, diffuculty, id));
-
-            }
-        } catch (SQLException e) {
-            System.out.println(e);
-            // TODO: handle exception
+    private Scene AddModule(int id) throws SQLException {
+        VBox layout = new VBox();
+        ChoiceBox<Domain.Module> modules = new ChoiceBox<>();
+        for (int i = 0; this.modules.size() > i; i++) {
+            modules.getItems().add(this.modules.get(i));
         }
+        Button submit = new Button("verzenden");
+        submit.setOnAction((Action) -> {
+            Domain.Module Selectedmodule = modules.getValue();
+            int moduleID = Selectedmodule.getModuleId();
+            System.out.println(moduleID);
+            String SQL = "UPDATE module SET cursusID = " + id + " WHERE id =" + moduleID;
+            try {
+                con.execute(SQL);
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+            Node node = (Node) Action.getSource();
+            Stage thisStage = (Stage) node.getScene().getWindow();
+            thisStage.close();
 
-        NameInput.clear();
-        subjectInput.clear();
-        descriptionInput.clear();
-        difficultyInput.clear();
+        });
+        layout.getChildren().addAll(new Label("voeg module toe"), modules, submit);
+        return new Scene(layout);
 
     }
 
