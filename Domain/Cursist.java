@@ -15,6 +15,7 @@ public class Cursist {
     private String dateOfBirth;
     private String gender;
     private String addres;
+    private String postalcode;
     private String city;
     private String country;
     private int id;
@@ -23,13 +24,15 @@ public class Cursist {
     private ConnectionDB con = new ConnectionDB();
 
     /* this is the constructor */
-    public Cursist(String name, String email, String dateOfBirth, String gender, String addres, String city,
+    public Cursist(String name, String email, String dateOfBirth, String gender, String addres, String postalcode,
+            String city,
             String country, int id, ArrayList diplomas, ArrayList<CourseDomain> enrolledCourses) {
         this.name = name;
         this.email = email;
         this.dateOfBirth = dateOfBirth;
         this.gender = gender;
         this.addres = addres;
+        this.postalcode = postalcode;
         this.city = city;
         this.country = country;
         this.diplomas = diplomas;
@@ -154,5 +157,17 @@ public class Cursist {
         view.setRoot(webcasts);
 
         return view;
+    }
+
+    public String getPostalcode() {
+        return postalcode;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public ConnectionDB getCon() {
+        return con;
     }
 }

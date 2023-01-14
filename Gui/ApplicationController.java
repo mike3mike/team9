@@ -15,7 +15,7 @@ public class ApplicationController extends Application {
     Scene cursists = new CursistController().printCursists();
     Scene certificates = new CertificateController().printCertificate();
     Scene registrations = new RegistrationController().printRegistration();
-    Scene modules = new ModuleController().printCursists();
+    Scene modules = new ModuleController().printModules();
 
     Stage window;
 

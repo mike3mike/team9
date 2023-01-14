@@ -52,10 +52,13 @@ public class CertificateController extends Application {
                 String Dateofbirth = sr.getString("geboortedatum");
                 String gender = sr.getString("geslacht");
                 String addres = sr.getString("adres");
+                String postalcode = sr.getString("postcode");
+
                 String city = sr.getString("woonplaats");
                 String country = sr.getString("land");
                 int CursistId = sr.getInt("id");
-                Cursist cursist = new Cursist(name, email, Dateofbirth, gender, addres, city, country, CursistId, null,
+                Cursist cursist = new Cursist(name, email, Dateofbirth, gender, addres, postalcode, city, country,
+                        CursistId, null,
                         null);
                 cursists.add(cursist);
 

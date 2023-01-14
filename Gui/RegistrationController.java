@@ -22,6 +22,7 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import Domain.CourseDomain;
 import Domain.Cursist;
@@ -52,10 +53,13 @@ public class RegistrationController extends Application {
                 String Dateofbirth = sr.getString("geboortedatum");
                 String gender = sr.getString("geslacht");
                 String addres = sr.getString("adres");
+                String postalcode = sr.getString("postcode");
+
                 String city = sr.getString("woonplaats");
                 String country = sr.getString("land");
                 int CursistId = sr.getInt("id");
-                Cursist cursist = new Cursist(name, email, Dateofbirth, gender, addres, city, country, CursistId, null,
+                Cursist cursist = new Cursist(name, email, Dateofbirth, gender, addres, postalcode, city, country,
+                        CursistId, null,
                         null);
                 cursists.add(cursist);
 
@@ -149,7 +153,7 @@ public class RegistrationController extends Application {
 
     public Scene addregistrations() {
 
-        GridPane layout = new GridPane();
+        VBox layout = new VBox();
         ChoiceBox<CourseDomain> choiceBoxCourses = new ChoiceBox();
         for (int i = 0; courses.size() > i; i++) {
             choiceBoxCourses.getItems().add(courses.get(i));
@@ -158,23 +162,35 @@ public class RegistrationController extends Application {
         for (int i = 0; cursists.size() > i; i++) {
             choiceBoxCursists.getItems().add(cursists.get(i));
         }
-        DatePicker registrationDateInput = new DatePicker();
-        layout.add(new Label("Course"), 1, 1);
-        layout.add(choiceBoxCourses, 1, 2);
-        layout.add(new Label("Cursist"), 2, 1);
-        layout.add(choiceBoxCursists, 2, 2);
-        layout.add(new Label("Registration Date"), 3, 1);
-        layout.add(registrationDateInput, 3, 2);
+        HBox PublishDateBox = new HBox();
+        TextField publishDay = new TextField();
+        publishDay.setPromptText("Dag");
+        TextField publishMonth = new TextField();
+        publishMonth.setPromptText("maand");
+
+        TextField publishYear = new TextField();
+        publishYear.setPromptText("jaar");
+
+        PublishDateBox.getChildren().addAll(publishDay, publishMonth, publishYear);
+        layout.getChildren().add(new Label("Course"));
+        layout.getChildren().add(choiceBoxCourses);
+        layout.getChildren().add(new Label("Cursist"));
+        layout.getChildren().add(choiceBoxCursists);
+        layout.getChildren().add(new Label("Registration Date"));
+        layout.getChildren().add(PublishDateBox);
 
         Button button = new Button("verzenden");
-        layout.add(button, 1, 5);
+
+        layout.getChildren().add(button);
         button.setOnAction((eventHandler) -> {
 
             try {
-                extracted(choiceBoxCourses, choiceBoxCursists, registrationDateInput);
+                String date = publishDay.getText() + "-" + publishMonth.getText() + "-" + publishYear.getText();
+
+                extracted(choiceBoxCourses, choiceBoxCursists, date);
 
             } catch (SQLException e) {
-                layout.add(new Label(e.getMessage()), 2, 5);
+                layout.getChildren().add(new Label(e.getMessage()));
 
             }
         });
@@ -187,9 +203,9 @@ public class RegistrationController extends Application {
     // from the database so it can be added to the table
     // (the course is retrieved from the database because the id gets
     // autoincremented in the databases)
-    private void extracted(ChoiceBox choiceBoxCourses, ChoiceBox choiceBoxCursists, DatePicker registrationDateInput)
+    private void extracted(ChoiceBox choiceBoxCourses, ChoiceBox choiceBoxCursists, String registrationDateInput)
             throws SQLException {
-        String date = registrationDateInput.getValue().toString();
+        String date = registrationDateInput;
         CourseDomain course = (CourseDomain) choiceBoxCourses.getValue();
         Cursist cursist = (Cursist) choiceBoxCursists.getValue();
         int CourseID = course.getId();

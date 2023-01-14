@@ -26,11 +26,11 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import Domain.CourseDomain;
 import Domain.Cursist;
+import validators.Validators;
 
 public class CursistController extends Application {
     private ConnectionDB con = new ConnectionDB();
     private TableView Cursists = new TableView<>();
-
     private TableColumn<Cursist, String> nameColumn = new TableColumn<>("name");
     private TableColumn<Cursist, String> emailColumn = new TableColumn<>("email");
     private TableColumn<Cursist, String> DateofbirthColumn = new TableColumn<>("date of birth");
@@ -38,6 +38,7 @@ public class CursistController extends Application {
     private TableColumn<Cursist, String> cityColumn = new TableColumn<>("city");
     private TableColumn<Cursist, String> countryColumn = new TableColumn<>("country");
     private TableColumn<Cursist, String> addresColumn = new TableColumn<>("addres");
+    private TableColumn<Cursist, String> PostalCodeColumn = new TableColumn<>("postalcode");
 
     public CursistController() {
         nameColumn.setCellValueFactory(new PropertyValueFactory<>("Name"));
@@ -47,8 +48,9 @@ public class CursistController extends Application {
         cityColumn.setCellValueFactory(new PropertyValueFactory<>("city"));
         countryColumn.setCellValueFactory(new PropertyValueFactory<>("country"));
         addresColumn.setCellValueFactory(new PropertyValueFactory<>("addres"));
+        PostalCodeColumn.setCellValueFactory(new PropertyValueFactory<>("postalcode"));
         Cursists.getColumns().addAll(nameColumn, emailColumn, DateofbirthColumn, genderColumn, cityColumn,
-                countryColumn);
+                countryColumn, PostalCodeColumn);
 
     }
 
@@ -66,12 +68,14 @@ public class CursistController extends Application {
                 String Dateofbirth = rs.getString("geboortedatum");
                 String gender = rs.getString("geslacht");
                 String addres = rs.getString("adres");
+                String postalcode = rs.getString("postcode");
                 String city = rs.getString("woonplaats");
                 String country = rs.getString("land");
 
                 int id = rs.getInt("id");
                 Cursists.getItems()
-                        .add(new Cursist(name, email, Dateofbirth, gender, addres, city, country, id, null, null));
+                        .add(new Cursist(name, email, Dateofbirth, gender, addres, postalcode, city, country, id, null,
+                                null));
             }
             layout.setLeft(Cursists);
 
@@ -136,40 +140,59 @@ public class CursistController extends Application {
 
     public Scene addCursist() {
 
-        GridPane layout = new GridPane();
+        VBox layout = new VBox();
         TextField NameInput = new TextField();
         TextField emailInput = new TextField();
-        DatePicker DOBInput = new DatePicker();
+        HBox PublishDateBox = new HBox();
+        TextField publishDay = new TextField();
+        publishDay.setPromptText("Dag");
+        TextField publishMonth = new TextField();
+        publishMonth.setPromptText("maand");
+
+        TextField publishYear = new TextField();
+        publishYear.setPromptText("jaar");
+
+        PublishDateBox.getChildren().addAll(publishDay, publishMonth, publishYear);
         TextField genderInput = new TextField();
         TextField cityInput = new TextField();
         TextField countryInput = new TextField();
         TextField addresInput = new TextField();
-        layout.add(new Label("naam"), 1, 1);
-        layout.add(NameInput, 1, 2);
-        layout.add(new Label("email"), 2, 1);
-        layout.add(emailInput, 2, 2);
-        layout.add(new Label("geboortedatum"), 3, 1);
-        layout.add(DOBInput, 3, 2);
-        layout.add(new Label("geslacht"), 4, 1);
-        layout.add(genderInput, 4, 2);
-        layout.add(new Label("woonplaats"), 5, 1);
-        layout.add(cityInput, 5, 2);
-        layout.add(new Label("land"), 6, 1);
-        layout.add(countryInput, 6, 2);
-        layout.add(new Label("Adres"), 7, 1);
-        layout.add(addresInput, 7, 2);
+        TextField postalcodeInput = new TextField();
+        layout.getChildren().add(new Label("naam"));
+        layout.getChildren().add(NameInput);
+        layout.getChildren().add(new Label("email"));
+        layout.getChildren().add(emailInput);
+        layout.getChildren().add(new Label("geboortedatum"));
+        layout.getChildren().add(PublishDateBox);
+        layout.getChildren().add(new Label("geslacht"));
+        layout.getChildren().add(genderInput);
+        layout.getChildren().add(new Label("woonplaats"));
+        layout.getChildren().add(cityInput);
+        layout.getChildren().add(new Label("land"));
+        layout.getChildren().add(countryInput);
+        layout.getChildren().add(new Label("Adres"));
+        layout.getChildren().add(addresInput);
+        layout.getChildren().add(new Label("postcode"));
+        layout.getChildren().add(postalcodeInput);
 
         Button button = new Button("verzenden");
-        layout.add(button, 1, 5);
+        layout.getChildren().add(button);
         button.setOnAction((eventHandler) -> {
+            String date = publishDay.getText() + "-" + publishMonth.getText() + "-" + publishYear.getText();
+            if (Validators.emailValid(emailInput.getText()) && (Validators.postcodeValid(postalcodeInput.getText()))) {
 
-            try {
-                extracted(NameInput, emailInput, DOBInput, genderInput, cityInput, countryInput, addresInput);
-                Node node = (Node) eventHandler.getSource();
-                Stage thisStage = (Stage) node.getScene().getWindow();
-                thisStage.close();
-            } catch (SQLException e) {
-                layout.add(new Label(e.getMessage()), 2, 5);
+                try {
+                    extracted(NameInput, emailInput, date, genderInput, cityInput, countryInput, addresInput,
+                            postalcodeInput);
+                    Node node = (Node) eventHandler.getSource();
+                    Stage thisStage = (Stage) node.getScene().getWindow();
+                    thisStage.close();
+                } catch (SQLException e) {
+                    layout.getChildren().add(new Label(e.getMessage()));
+
+                }
+            } else {
+                layout.getChildren().add(new Label("velden kloppen niet"));
 
             }
         });
@@ -182,21 +205,25 @@ public class CursistController extends Application {
     // from the database so it can be added to the table
     // (the course is retrieved from the database because the id gets
     // autoincremented in the databases)
-    private void extracted(TextField NameInput, TextField emailInput, DatePicker DOBInput,
-            TextField genderInput, TextField cityInput, TextField countryInput, TextField addresInput)
+    private void extracted(TextField NameInput, TextField emailInput, String DOBInput,
+            TextField genderInput, TextField cityInput, TextField countryInput, TextField addresInput,
+            TextField postalcodeInput)
             throws SQLException {
         String name = NameInput.getText();
         String email = emailInput.getText();
-        String DateOfBirth = DOBInput.getValue().toString();
+        String DateOfBirth = DOBInput;
         String gender = genderInput.getText();
         String country = countryInput.getText();
         String addres = addresInput.getText();
+        String postalcode = postalcodeInput.getText();
         String city = cityInput.getText();
         // adding course to database
-        String SQL = "INSERT INTO Cursist (naam,email,geboortedatum,geslacht,land,adres,woonplaats)VALUES ('" + name
+        String SQL = "INSERT INTO Cursist (naam,email,geboortedatum,geslacht,land,adres,postcode,woonplaats)VALUES ('"
+                + name
                 + "','"
                 + email
-                + "','" + DateOfBirth + "','" + gender + "','" + country + "','" + addres + "','" + city + "')";
+                + "','" + DateOfBirth + "','" + gender + "','" + country + "','" + addres + "','" + postalcode + "','"
+                + city + "')";
         con.execute(SQL);
         // adding course to table
         try {
@@ -204,17 +231,19 @@ public class CursistController extends Application {
                     .getList(
                             "SELECT * FROM Cursist WHERE naam = '" + name + "' AND email = '" + email + "'");
             while (rs.next()) {
-                String Name = rs.getString("naam");
-                String Email = rs.getString("email");
-                String Dateofbirth = rs.getString("geboortedatum");
-                String Gender = rs.getString("geslacht");
-                String Addres = rs.getString("adres");
+                name = rs.getString("naam");
+                email = rs.getString("email");
+                DateOfBirth = rs.getString("geboortedatum");
+                gender = rs.getString("geslacht");
+                addres = rs.getString("adres");
+                postalcode = rs.getString("postcode");
+
                 String City = rs.getString("woonplaats");
                 String Country = rs.getString("land");
 
                 int id = rs.getInt("id");
                 Cursists.getItems()
-                        .add(new Cursist(Name, Email, Dateofbirth, Gender, Addres, City, Country, id,
+                        .add(new Cursist(name, email, DateOfBirth, gender, addres, postalcode, City, Country, id,
                                 null, null));
             }
         } catch (SQLException e) {

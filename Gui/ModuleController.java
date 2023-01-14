@@ -23,6 +23,7 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
 public class ModuleController extends Application {
@@ -53,13 +54,13 @@ public class ModuleController extends Application {
 
     }
 
-    public Scene printCursists() {
+    public Scene printModules() {
 
         try {
 
             ResultSet rs = con.getList("SELECT * from module INNER JOIN contentItem on contentItemid = contentItem.id");
             BorderPane layout = new BorderPane();
-            Scene printCursists = new Scene(layout);
+            Scene printModules = new Scene(layout);
             // this while loop adds courses to the table
             while (rs.next()) {
                 String title = rs.getString("titel");
@@ -87,7 +88,7 @@ public class ModuleController extends Application {
             buttons.getChildren().addAll(Back, add, delete);
             add.setOnAction((EventHandler) -> {
                 Stage stage = new Stage();
-                stage.setScene(addCursist());
+                stage.setScene(addModule());
                 stage.show();
 
             });
@@ -98,7 +99,7 @@ public class ModuleController extends Application {
                 Modules.getItems().remove(id);
 
                 try {
-                    deleteCursist(id.getModuleId());
+                    deleteModule(id.getModuleId());
                 } catch (SQLException e) {
                     buttons.getChildren().add(new Label(e.getLocalizedMessage()));
                 }
@@ -119,7 +120,7 @@ public class ModuleController extends Application {
             });
 
             layout.setBottom(buttons);
-            return printCursists;
+            return printModules;
 
         } catch (SQLException e) {
             System.out.println(e);
@@ -128,47 +129,58 @@ public class ModuleController extends Application {
 
     }
 
-    public Scene addCursist() {
+    public Scene addModule() {
 
-        GridPane layout = new GridPane();
+        VBox layout = new VBox();
         TextField titleInput = new TextField();
         TextField descriptionInput = new TextField();
         ChoiceBox statusChoiceBox = new ChoiceBox();
         statusChoiceBox.getItems().add("concept");
         statusChoiceBox.getItems().add("actief");
         statusChoiceBox.getItems().add("gearchiveerd");
-        DatePicker publishDateInput = new DatePicker();
+        HBox PublishDateBox = new HBox();
+        TextField publishDay = new TextField();
+        publishDay.setPromptText("Dag");
+        TextField publishMonth = new TextField();
+        publishMonth.setPromptText("maand");
+
+        TextField publishYear = new TextField();
+        publishYear.setPromptText("jaar");
+
+        PublishDateBox.getChildren().addAll(publishDay, publishMonth, publishYear);
         TextField versionInput = new TextField();
         TextField contactInput = new TextField();
         TextField contactEmail = new TextField();
-        layout.add(new Label("titel"), 1, 1);
-        layout.add(titleInput, 1, 2);
-        layout.add(new Label("beschrijving"), 2, 1);
-        layout.add(descriptionInput, 2, 2);
-        layout.add(new Label("status"), 3, 1);
-        layout.add(statusChoiceBox, 3, 2);
-        layout.add(new Label("publicatie datum"), 4, 1);
-        layout.add(publishDateInput, 4, 2);
-        layout.add(new Label("verie"), 5, 1);
-        layout.add(versionInput, 5, 2);
-        layout.add(new Label("contactpersoon"), 6, 1);
-        layout.add(contactInput, 6, 2);
-        layout.add(new Label("email van contactpersoon"), 7, 1);
-        layout.add(contactEmail, 7, 2);
+        layout.getChildren().add(new Label("titel"));
+        layout.getChildren().add(titleInput);
+        layout.getChildren().add(new Label("beschrijving"));
+        layout.getChildren().add(descriptionInput);
+        layout.getChildren().add(new Label("status"));
+        layout.getChildren().add(statusChoiceBox);
+        layout.getChildren().add(new Label("publicatie datum"));
+        layout.getChildren().add(PublishDateBox);
+        layout.getChildren().add(new Label("versie"));
+        layout.getChildren().add(versionInput);
+        layout.getChildren().add(new Label("contactpersoon"));
+        layout.getChildren().add(contactInput);
+        layout.getChildren().add(new Label("email van contactpersoon"));
+        layout.getChildren().add(contactEmail);
 
         Button button = new Button("verzenden");
-        layout.add(button, 1, 5);
+        layout.getChildren().add(button);
         button.setOnAction((eventHandler) -> {
 
+            String date = publishDay.getText() + "-" + publishMonth.getText() + "-" + publishYear.getText();
+
             try {
-                extracted(titleInput, descriptionInput, statusChoiceBox, publishDateInput, versionInput, contactInput,
+                extracted(titleInput, descriptionInput, statusChoiceBox, date, versionInput, contactInput,
                         contactEmail);
                 // Node node = (Node) eventHandler.getSource();
                 // Stage thisStage = (Stage) node.getScene().getWindow();
                 // thisStage.close();
             } catch (SQLException e) {
                 System.out.println(e);
-                layout.add(new Label(e.getLocalizedMessage()), 2, 5);
+                layout.getChildren().add(new Label(e.getLocalizedMessage()));
 
             }
         });
@@ -182,12 +194,12 @@ public class ModuleController extends Application {
     // (the course is retrieved from the database because the id gets
     // autoincremented in the databases)
     private void extracted(TextField titleInput, TextField descriptionInput, ChoiceBox statusInput,
-            DatePicker publishDateInput, TextField versionInput, TextField contactInput, TextField contactEmailInput)
+            String publishDateInput, TextField versionInput, TextField contactInput, TextField contactEmailInput)
             throws SQLException {
         String title = titleInput.getText();
         String description = descriptionInput.getText();
         String status = (String) statusInput.getValue();
-        String publishDate = publishDateInput.getValue().toString();
+        String publishDate = publishDateInput;
         String version = versionInput.getText();
         String contact = contactInput.getText();
         String contactEmail = contactEmailInput.getText();
@@ -242,15 +254,15 @@ public class ModuleController extends Application {
 
     }
 
-    private void deleteCursist(int id) throws SQLException {
-        String SQL = "DELETE FROM Cursist WHERE id=" + id + ";";
+    private void deleteModule(int id) throws SQLException {
+        String SQL = "DELETE FROM module WHERE id=" + id + ";";
         con.execute(SQL);
 
     }
 
     @Override
     public void start(Stage stage) throws Exception {
-        stage.setScene(printCursists());
+        stage.setScene(printModules());
         stage.show();
     }
 
