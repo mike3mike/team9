@@ -8,7 +8,7 @@ import Database.ConnectionDB;
 public class Certificate {
     private ConnectionDB con = new ConnectionDB();
 
-    public Certificate(int Cursistid, int courseID, String grade, String nameStaff, int id) {
+    public Certificate(int Cursistid, int courseID, int grade, String nameStaff, int id) {
         try {
             ResultSet sr = con.getList("Select * FROM Cursist WHERE id =" + Cursistid);
             while (sr.next()) {
@@ -51,7 +51,7 @@ public class Certificate {
     private Cursist cursist;
     private CourseDomain course;
     private int courseID;
-    private String grade;
+    private int grade;
     private String nameStaff;
     private int id;
 
@@ -71,7 +71,7 @@ public class Certificate {
         return courseID;
     }
 
-    public String getGrade() {
+    public int getGrade() {
         return grade;
     }
 

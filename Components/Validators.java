@@ -1,4 +1,4 @@
-package validators;
+package Components;
 
 import java.util.regex.Pattern;
 
@@ -24,6 +24,24 @@ public class Validators {
         if (Postalcode == null)
             return false;
         return pat.matcher(Postalcode).matches();
+    }
+
+    public static boolean URLValid(String URL) {
+        String Regex = "[(http(s)?):\\/\\/(\\.)?a-zA-Z0-9@:%._\\+~#=]{2,256}\\.[a-z]{2,6}\\b([-a-zA-Z0-9@:%_\\+.~#?&//=]*)";
+
+        Pattern pat = Pattern.compile(Regex);
+        if (URL == null)
+            return false;
+        return pat.matcher(URL).matches();
+    }
+
+    public static boolean progressValid(String progress) {
+        String Regex = "^[1-9][0-9]?$|^100$";
+
+        Pattern pat = Pattern.compile(Regex);
+        if (progress == null)
+            return false;
+        return pat.matcher(progress).matches();
     }
 
 }

@@ -94,7 +94,7 @@ public class CertificateController extends Application {
                 int courseID = rs.getInt("CursusID");
 
                 String nameStaff = rs.getString("naamMedewerker");
-                String grade = rs.getString("beoordeling");
+                int grade = rs.getInt("beoordeling");
                 int id = rs.getInt("id");
 
                 Certificates.getItems()
@@ -164,10 +164,12 @@ public class CertificateController extends Application {
             choiceBoxCursists.getItems().add(cursists.get(i));
         }
         TextField NameStaffInput = new TextField();
-        ChoiceBox<String> gradeCheckBox = new ChoiceBox<String>();
-        gradeCheckBox.getItems().add("onvoldoende");
-        gradeCheckBox.getItems().add("voldoende");
-        gradeCheckBox.getItems().add("zeer goed");
+        ChoiceBox<Integer> gradeCheckBox = new ChoiceBox<Integer>();
+        for (int i = 1; 10 >= i; i++) {
+            gradeCheckBox.getItems().add(i);
+
+        }
+
         layout.add(new Label("Course"), 1, 1);
         layout.add(choiceBoxCourses, 1, 2);
         layout.add(new Label("Cursist"), 2, 1);
@@ -199,11 +201,11 @@ public class CertificateController extends Application {
     // (the course is retrieved from the database because the id gets
     // autoincremented in the databases)
     private void extracted(ChoiceBox<CourseDomain> choiceBoxCourses, ChoiceBox<Cursist> choiceBoxCursists,
-            ChoiceBox<String> gradeCheckBox,
+            ChoiceBox<Integer> gradeCheckBox,
             TextField NameStaffInput)
             throws SQLException {
         String NameStaff = NameStaffInput.getText();
-        String grade = gradeCheckBox.getValue();
+        int grade = gradeCheckBox.getValue();
         CourseDomain course = choiceBoxCourses.getValue();
         Cursist cursist = choiceBoxCursists.getValue();
         int CourseID = course.getId();
@@ -225,7 +227,7 @@ public class CertificateController extends Application {
                 int nameID = rs.getInt("Cursistid");
                 int courseID = rs.getInt("cursusid");
                 String nameStaff = rs.getString("naamMedewerker");
-                grade = rs.getString("beoordeling");
+                grade = rs.getInt("beoordeling");
                 int id = rs.getInt("id");
 
                 Certificates.getItems()
