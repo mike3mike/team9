@@ -25,6 +25,7 @@ import Domain.CourseDomain;
 import Domain.Cursist;
 import Domain.Module;
 import Domain.Progress;
+import Domain.Webcast;
 import Components.ErrorMessage;
 import Components.Validators;
 
@@ -281,8 +282,11 @@ public class CursistController extends Application {
             if (Item == null) {
                 Item = (TreeItem<Progress>) webcasts.getSelectionModel().getSelectedItem();
             }
-
-            Item.setValue(null);
+            Progress newProgress = editProgress(Item.getValue());
+            Item.setValue(newProgress);
+            Node node = (Node) Action.getSource();
+            Stage thisStage = (Stage) node.getScene().getWindow();
+            thisStage.close();
 
         });
 
@@ -337,12 +341,28 @@ public class CursistController extends Application {
 
         try {
             ResultSet rs = con.getList(
-                    "SELECT titel, progressie from webcast INNER JOIN contentItem on contentItemid = contentItem.id INNER JOIN progressie on contentItem.id = progressie.contentitemID WHERE cursistID="
+                    "SELECT * from webcast INNER JOIN contentItem on contentItemid = contentItem.id INNER JOIN progressie on contentItem.id = progressie.contentitemID WHERE cursistID="
                             + cursist.getid());
             while (rs.next()) {
-                String module = rs.getString("titel");
                 int progress = rs.getInt("progressie");
-                webcasts.getChildren().add(new TreeItem<>(module + " progressie: " + progress + "%"));
+
+                String title = rs.getString("titel");
+                String description = rs.getString("beschrijving");
+                String publishDate = rs.getString("publicatiedatum");
+                String status = rs.getString("status");
+                String URL = rs.getString("URL");
+                String namespeaker = rs.getString("naamspreker");
+                String organisation = rs.getString("organisatieWerk");
+                int id = rs.getInt("id");
+                System.out.println(id);
+                int ContentItemID = rs.getInt("contentItemid");
+                int progressID = rs.getInt("progressID");
+
+                Domain.Webcast webcast = new Webcast(ContentItemID, id, publishDate, status, title, description, URL,
+                        namespeaker, organisation);
+                Progress Progress = new Progress(cursist, webcast, progress, progressID);
+
+                webcasts.getChildren().add(new TreeItem<>(Progress));
 
             }
         } catch (Exception e) {

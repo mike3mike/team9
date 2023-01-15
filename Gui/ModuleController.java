@@ -169,9 +169,9 @@ public class ModuleController extends Application {
             try {
                 extracted(titleInput, descriptionInput, statusChoiceBox, date, versionInput, contactInput,
                         contactEmail);
-                // Node node = (Node) eventHandler.getSource();
-                // Stage thisStage = (Stage) node.getScene().getWindow();
-                // thisStage.close();
+                Node node = (Node) eventHandler.getSource();
+                Stage thisStage = (Stage) node.getScene().getWindow();
+                thisStage.close();
             } catch (SQLException e) {
                 System.out.println(e);
                 layout.getChildren().add(new Label(e.getLocalizedMessage()));

@@ -56,6 +56,8 @@ public class ApplicationController extends Application {
         list.getChildren().add(buttons);
         layout.setCenter(list);
         this.index = new Scene(layout);
+        window.setTitle(
+                "Anouar Elmasaoudi(2208997), Mike Leijten (2207644), Koen van Steen (2196527), Muhammad Samadov(2208926)");
         window.setScene(index);
         window.show();
     }

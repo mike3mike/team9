@@ -19,8 +19,9 @@ public class Cursist {
     private String city;
     private String country;
     private int id;
-    private ArrayList diplomas;
+    private ArrayList<Certificate> diplomas = new ArrayList<>();
     private ArrayList<CourseDomain> enrolledCourses = new ArrayList<>();
+    private ArrayList<CourseDomain> Webcasts = new ArrayList<>();
     private ConnectionDB con = new ConnectionDB();
 
     /* this is the constructor */

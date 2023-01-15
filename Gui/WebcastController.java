@@ -170,9 +170,9 @@ public class WebcastController extends Application {
             try {
                 extracted(titleInput, descriptionInput, statusChoiceBox, date, speakerNameInput, organisationNameInput,
                         URLInput);
-                // Node node = (Node) eventHandler.getSource();
-                // Stage thisStage = (Stage) node.getScene().getWindow();
-                // thisStage.close();
+                Node node = (Node) eventHandler.getSource();
+                Stage thisStage = (Stage) node.getScene().getWindow();
+                thisStage.close();
             } catch (SQLException e) {
                 System.out.println(e);
                 layout.getChildren().add(new Label(e.getLocalizedMessage()));
@@ -183,7 +183,7 @@ public class WebcastController extends Application {
         return addCourse;
     }
 
-    // this method is a submit method for the addCourse method. It excecutes an
+    // this method is a submit method for the addWebcast method. It excecutes an
     // sql query to add the course to the database and it retrieves back the course
     // from the database so it can be added to the table
     // (the course is retrieved from the database because the id gets
@@ -252,7 +252,7 @@ public class WebcastController extends Application {
     }
 
     private void deleteWebcast(int id) throws SQLException {
-        String SQL = "DELETE FROM module WHERE id=" + id + ";";
+        String SQL = "DELETE FROM webcast WHERE id=" + id + ";";
         con.execute(SQL);
 
     }

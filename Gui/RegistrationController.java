@@ -85,7 +85,7 @@ public class RegistrationController extends Application {
             ResultSet rs = con.getList("SELECT * FROM inschrijving");
             BorderPane layout = new BorderPane();
             Scene printregistrations = new Scene(layout);
-            // this while loop adds courses to the table
+            // this while loop adds registrations to the table
             while (rs.next()) {
                 int nameID = rs.getInt("Cursistid");
                 int courseID = rs.getInt("cursusid");
@@ -184,6 +184,9 @@ public class RegistrationController extends Application {
                 String date = publishDay.getText() + "-" + publishMonth.getText() + "-" + publishYear.getText();
 
                 extracted(choiceBoxCourses, choiceBoxCursists, date);
+                Node node = (Node) eventHandler.getSource();
+                Stage thisStage = (Stage) node.getScene().getWindow();
+                thisStage.close();
 
             } catch (SQLException e) {
                 layout.getChildren().add(new Label(e.getMessage()));
@@ -194,7 +197,8 @@ public class RegistrationController extends Application {
         return addCourse;
     }
 
-    // this method is a submit method for the addCourse method. It excecutes an
+    // this method is a submit method for the addregistrations method. It excecutes
+    // an
     // sql query to add the course to the database and it retrieves back the course
     // from the database so it can be added to the table
     // (the course is retrieved from the database because the id gets
@@ -237,9 +241,9 @@ public class RegistrationController extends Application {
                 con.execute(SQL);
 
             }
+
         } catch (SQLException e) {
             System.out.println(e);
-            // TODO: handle exception
         }
 
     }
