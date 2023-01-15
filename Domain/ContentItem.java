@@ -1,6 +1,6 @@
 package Domain;
 
-public class ContentItem {
+public abstract class ContentItem {
 
     private int ID;
     private String publishDate;

@@ -3,9 +3,7 @@ package Gui;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
-
-import javax.swing.Action;
-
+import Components.ErrorMessage;
 import Database.ConnectionDB;
 import Domain.CourseDomain;
 import javafx.application.Application;
@@ -15,7 +13,6 @@ import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.Label;
-import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
@@ -26,7 +23,6 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
-import javafx.util.Callback;
 
 public class CourseController extends Application {
 
@@ -101,7 +97,11 @@ public class CourseController extends Application {
             HBox buttons = new HBox();
             buttons.getChildren().addAll(Back, add, delete, edit);
             add.setOnAction((EventHandler) -> {
-                addCourse();
+                if (modules.size() == 0) {
+                    ErrorMessage.ErrorScreen("voeg eerst een module toe!");
+                } else {
+                    addCourse();
+                }
 
             });
             delete.setOnAction((EventHandler) -> {
@@ -113,7 +113,8 @@ public class CourseController extends Application {
                 try {
                     deleteCourse(id.getId());
                 } catch (SQLException e) {
-                    buttons.getChildren().add(new Label(e.getLocalizedMessage()));
+                    ErrorMessage.ErrorScreen(e.getSQLState());
+                    ;
                 }
 
             });
@@ -127,13 +128,6 @@ public class CourseController extends Application {
                 stage.setScene(editCourse(id));
                 stage.show();
                 courses.refresh();
-
-
-                // try {
-                //     deleteCourse(id.getId());
-                // } catch (SQLException e) {
-                //     buttons.getChildren().add(new Label(e.getLocalizedMessage()));
-                // }
 
             });
             Back.setOnAction((Action) -> {
@@ -209,8 +203,9 @@ public class CourseController extends Application {
                         String diffuculty = rs.getString("niveau");
 
                         int id = rs.getInt("id");
-                        courses.getItems().add(new CourseDomain(name, Subject, description, diffuculty, id));
-                        stage.setScene(AddModule(id));
+                        CourseDomain course = new CourseDomain(name, Subject, description, diffuculty, id);
+                        courses.getItems().add(course);
+                        stage.setScene(AddModule(course));
 
                     }
                 } catch (SQLException e) {
@@ -229,7 +224,7 @@ public class CourseController extends Application {
         stage.show();
     }
 
-    private Scene AddModule(int id) throws SQLException {
+    private Scene AddModule(CourseDomain id) throws SQLException {
         VBox layout = new VBox();
         ChoiceBox<Domain.Module> modules = new ChoiceBox<>();
         for (int i = 0; this.modules.size() > i; i++) {
@@ -240,7 +235,7 @@ public class CourseController extends Application {
             Domain.Module Selectedmodule = modules.getValue();
             int moduleID = Selectedmodule.getModuleId();
             System.out.println(moduleID);
-            String SQL = "UPDATE module SET cursusID = " + id + " WHERE id =" + moduleID;
+            String SQL = "UPDATE module SET cursusID = " + id.getId() + " WHERE id =" + moduleID;
             try {
                 con.execute(SQL);
             } catch (SQLException e) {

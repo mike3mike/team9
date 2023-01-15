@@ -17,6 +17,7 @@ public class ErrorMessage {
         Label messageLabel = new Label(message);
         Button close = new Button("venster sluiten");
         box.setSpacing(20);
+        box.getChildren().addAll(messageLabel, close);
         Scene scene = new Scene(box);
         stage.setScene(scene);
         stage.show();

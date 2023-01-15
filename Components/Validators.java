@@ -44,4 +44,13 @@ public class Validators {
         return pat.matcher(progress).matches();
     }
 
+    public static boolean dateValid(String progress) {
+        String Regex = "^\\d\\d-\\d\\d-\\d\\d\\d\\d";
+
+        Pattern pat = Pattern.compile(Regex);
+        if (progress == null)
+            return false;
+        return pat.matcher(progress).matches();
+    }
+
 }

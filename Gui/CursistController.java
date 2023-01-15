@@ -2,31 +2,31 @@ package Gui;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-
 import Database.ConnectionDB;
 import javafx.application.Application;
 import javafx.collections.ObservableList;
-import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
-import javafx.scene.control.DatePicker;
 import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TableView.TableViewSelectionModel;
 import javafx.scene.control.TextField;
+import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import Domain.CourseDomain;
 import Domain.Cursist;
-import validators.Validators;
+import Domain.Module;
+import Domain.Progress;
+import Components.ErrorMessage;
+import Components.Validators;
 
 public class CursistController extends Application {
     private ConnectionDB con = new ConnectionDB();
@@ -267,14 +267,123 @@ public class CursistController extends Application {
         view.autosize();
 
         HBox treeviews = new HBox();
-        TreeView modules = cursist.getEnrolledCourses();
-        TreeView webcasts = cursist.viewedWebcasts();
+
+        TreeView webcasts = viewedWebcasts(cursist);
+        TreeView<Progress> modules = CoursesProgress(cursist);
         treeviews.getChildren().addAll(webcasts, modules);
-        layout.getChildren().addAll(view, treeviews);
+        Button editProgress = new Button("progressie wijzigen");
+        layout.getChildren().addAll(view, treeviews, editProgress);
         structure.setCenter(layout);
         layout.setMargin(view, new Insets(5));
 
+        editProgress.setOnAction((Action) -> {
+            TreeItem<Progress> Item = modules.getSelectionModel().getSelectedItem();
+            if (Item == null) {
+                Item = (TreeItem<Progress>) webcasts.getSelectionModel().getSelectedItem();
+            }
+
+            Item.setValue(null);
+
+        });
+
         return new Scene(structure, 400, 350);
+
+    }
+
+    public TreeView CoursesProgress(Cursist cursist) {
+        TreeView view = new TreeView<>();
+        TreeItem courses = new TreeItem("cursussen");
+        for (int i = 0; cursist.getEnrolledCourses().size() > i; i++) {
+            CourseDomain currentCourse = cursist.getEnrolledCourses().get(i);
+            TreeItem<Progress> course = new TreeItem(currentCourse);
+            int courseid = currentCourse.getId();
+            courses.getChildren().add(course);
+
+            try {
+                ResultSet rs = con.getList(
+                        "SELECT * from module INNER JOIN contentItem on contentItemid = contentItem.id INNER JOIN progressie on contentItem.id = progressie.contentitemID WHERE CursusID = "
+                                + courseid + "AND cursistID=" + cursist.getid());
+                while (rs.next()) {
+                    int progress = rs.getInt("progressie");
+                    String title = rs.getString("titel");
+                    String description = rs.getString("beschrijving");
+                    String publishDate = rs.getString("publicatiedatum");
+                    String status = rs.getString("status");
+                    String version = rs.getString("versie");
+                    String contact = rs.getString("naamContactpersoon");
+                    String contactEmail = rs.getString("email");
+                    int progressID = rs.getInt("progressID");
+                    int id = rs.getInt("id");
+                    int ContentItemID = rs.getInt("contentItemid");
+                    Domain.Module module = new Module(ContentItemID, id, publishDate, status, title, description,
+                            version, contact, contactEmail);
+                    Progress Progress = new Progress(cursist, module, progress, progressID);
+
+                    course.getChildren().add(new TreeItem<>(Progress));
+
+                }
+            } catch (SQLException e) {
+                System.out.println(e);
+            }
+
+        }
+        view.setRoot(courses);
+        return view;
+    }
+
+    public TreeView viewedWebcasts(Cursist cursist) {
+
+        TreeItem webcasts = new TreeItem("webcasts");
+
+        try {
+            ResultSet rs = con.getList(
+                    "SELECT titel, progressie from webcast INNER JOIN contentItem on contentItemid = contentItem.id INNER JOIN progressie on contentItem.id = progressie.contentitemID WHERE cursistID="
+                            + cursist.getid());
+            while (rs.next()) {
+                String module = rs.getString("titel");
+                int progress = rs.getInt("progressie");
+                webcasts.getChildren().add(new TreeItem<>(module + " progressie: " + progress + "%"));
+
+            }
+        } catch (Exception e) {
+            System.out.println(e);
+        }
+
+        TreeView view = new TreeView<>();
+        view.setRoot(webcasts);
+
+        return view;
+    }
+
+    public Progress editProgress(Progress progress) {
+        VBox layout = new VBox();
+        TextField percentageField = new TextField();
+        Button submit = new Button("wijzigen");
+        layout.getChildren().addAll(percentageField, submit);
+
+        Scene scene = new Scene(layout);
+        Stage stage = new Stage();
+        stage.setScene(scene);
+        stage.show();
+        submit.setOnAction((Action) -> {
+            String progressString = percentageField.getText();
+            int percentage = Integer.valueOf(progressString);
+            progress.setProgress(percentage);
+            if (Validators.progressValid(progressString)) {
+                String SQL = "UPDATE progressie SET progressie  = " + percentage + " WHERE progressID ="
+                        + progress.getId();
+                try {
+                    con.execute(SQL);
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+                stage.close();
+            } else {
+                ErrorMessage.ErrorScreen("progressie moet een cijfer zijn tussen 0 en 100 ");
+            }
+
+        });
+        return progress;
 
     }
 

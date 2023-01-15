@@ -24,7 +24,7 @@ public class Cursist {
     private ConnectionDB con = new ConnectionDB();
 
     /* this is the constructor */
-    public Cursist(String name, String email, String dateOfBirth, String gender, String addres, String postalcode,
+    public Cursist(String name, String email, String dateOfBirth, String gender, String addres, String Postalcode,
             String city,
             String country, int id, ArrayList diplomas, ArrayList<CourseDomain> enrolledCourses) {
         this.name = name;
@@ -33,6 +33,7 @@ public class Cursist {
         this.gender = gender;
         this.addres = addres;
         this.postalcode = postalcode;
+
         this.city = city;
         this.country = country;
         this.diplomas = diplomas;
@@ -106,57 +107,9 @@ public class Cursist {
         return diplomas;
     }
 
-    public TreeView getEnrolledCourses() {
+    public ArrayList<CourseDomain> getEnrolledCourses() {
 
-        TreeItem courses = new TreeItem("cursussen");
-        for (int i = 0; enrolledCourses.size() > i; i++) {
-            TreeItem<String> course = new TreeItem(enrolledCourses.get(i));
-            int courseid = enrolledCourses.get(i).getId();
-            courses.getChildren().add(course);
-
-            try {
-                ResultSet rs = con.getList(
-                        "SELECT titel, progressie from module INNER JOIN contentItem on contentItemid = contentItem.id INNER JOIN progressie on module.id = progressie.moduleID WHERE CursusID = "
-                                + courseid + "AND cursistID=" + getid());
-                while (rs.next()) {
-                    String module = rs.getString("titel");
-                    int progress = rs.getInt("progressie");
-                    course.getChildren().add(new TreeItem<>(module + " progressie: " + progress + "%"));
-
-                }
-            } catch (Exception e) {
-                System.out.println(e);
-            }
-
-        }
-        TreeView view = new TreeView<>();
-        view.setRoot(courses);
-
-        return view;
-    }
-
-    public TreeView viewedWebcasts() {
-
-        TreeItem webcasts = new TreeItem("webcasts");
-
-        try {
-            ResultSet rs = con.getList(
-                    "SELECT titel, progressie from webcast INNER JOIN contentItem on contentItemid = contentItem.id INNER JOIN progressie on webcast.id = progressie.webcastID WHERE cursistID="
-                            + getid());
-            while (rs.next()) {
-                String module = rs.getString("titel");
-                int progress = rs.getInt("progressie");
-                webcasts.getChildren().add(new TreeItem<>(module + " progressie: " + progress + "%"));
-
-            }
-        } catch (Exception e) {
-            System.out.println(e);
-        }
-
-        TreeView view = new TreeView<>();
-        view.setRoot(webcasts);
-
-        return view;
+        return enrolledCourses;
     }
 
     public String getPostalcode() {
@@ -170,4 +123,5 @@ public class Cursist {
     public ConnectionDB getCon() {
         return con;
     }
+
 }

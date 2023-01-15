@@ -16,6 +16,7 @@ public class ApplicationController extends Application {
     Scene certificates = new CertificateController().printCertificate();
     Scene registrations = new RegistrationController().printRegistration();
     Scene modules = new ModuleController().printModules();
+    Scene webcasts = new WebcastController().printModules();
 
     Stage window;
 
@@ -47,7 +48,11 @@ public class ApplicationController extends Application {
         modules.setOnAction((Action) -> {
             window.setScene(this.modules);
         });
-        buttons.getChildren().addAll(Courses, cursists, registrations, certificates, modules);
+        Button webcasts = new Button("webcasts zien en wijzigen");
+        webcasts.setOnAction((Action) -> {
+            window.setScene(this.webcasts);
+        });
+        buttons.getChildren().addAll(Courses, cursists, registrations, certificates, modules, webcasts);
         list.getChildren().add(buttons);
         layout.setCenter(list);
         this.index = new Scene(layout);

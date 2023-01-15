@@ -6,13 +6,11 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 
 import Database.ConnectionDB;
-import javafx.application.Application;
 import javafx.collections.ObservableList;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.ChoiceBox;
-import javafx.scene.control.DatePicker;
 import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
@@ -20,14 +18,12 @@ import javafx.scene.control.TableView.TableViewSelectionModel;
 import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import Domain.CourseDomain;
 import Domain.Cursist;
 import Domain.Registration;
-import Domain.CourseDomain;
 
 public class RegistrationController extends Application {
     private ConnectionDB con = new ConnectionDB();
@@ -218,6 +214,7 @@ public class RegistrationController extends Application {
         con.execute(SQL);
         // adding course to table
         try {
+
             ResultSet rs = con
                     .getList(
                             "SELECT * FROM inschrijving WHERE cursusID = '" + CourseID + "' AND cursistID = '"
@@ -228,6 +225,16 @@ public class RegistrationController extends Application {
                 int id = rs.getInt("ID");
                 registrations.getItems()
                         .add(new Registration(curistID, CourseID, date, id));
+
+            }
+
+            for (int i = 0; course.getModules().size() > i; i++) {
+                Domain.Module module = course.getModules().get(i);
+                int contentItemID = module.getID();
+                SQL = "INSERT INTO progressie (contentitemID,cursistID,progressie)VALUES ('" + contentItemID + "','"
+                        + curistID
+                        + "','" + 0 + "')";
+                con.execute(SQL);
 
             }
         } catch (SQLException e) {
