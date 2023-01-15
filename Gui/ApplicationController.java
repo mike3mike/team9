@@ -16,6 +16,7 @@ public class ApplicationController extends Application {
     Scene certificates = new CertificateController().printCertificate();
     Scene registrations = new RegistrationController().printRegistration();
     Scene modules = new ModuleController().printCursists();
+    Scene overview = new OverviewController().printOverviews();
 
     Stage window;
 
@@ -47,7 +48,11 @@ public class ApplicationController extends Application {
         modules.setOnAction((Action) -> {
             window.setScene(this.modules);
         });
-        buttons.getChildren().addAll(Courses, cursists, registrations, certificates, modules);
+        Button overview = new Button("overzichten zien");
+        cursists.setOnAction((Action) -> {
+            window.setScene(this.overview);
+        });
+        buttons.getChildren().addAll(Courses, cursists, registrations, certificates, modules, overview);
         list.getChildren().add(buttons);
         layout.setCenter(list);
         this.index = new Scene(layout);
