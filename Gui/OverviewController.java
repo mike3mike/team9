@@ -1,15 +1,22 @@
 package Gui;
 
-import Database.ConnectionDB;
 import javafx.scene.Scene;
+import javafx.scene.control.Label;
+import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.VBox;
 
 public class OverviewController {
 
-    private ConnectionDB con = new ConnectionDB();
-
     public Scene printOverviews() {
 
-        return null;
+        BorderPane layout = new BorderPane();
+        Scene OverviewControllerButtons = new Scene(layout);
+        VBox list = new VBox();
+        list.getChildren().add(new Label("Welkom!"));
+        list.getChildren().add(new Label("kies een van de volgende acties:"));
+
+        layout.setCenter(list);
+        return OverviewControllerButtons;
     }
 
 }
