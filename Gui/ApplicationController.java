@@ -17,6 +17,7 @@ public class ApplicationController extends Application {
     Scene registrations = new RegistrationController().printRegistration();
     Scene modules = new ModuleController().printModules();
     Scene webcasts = new WebcastController().printModules();
+    Scene overviews = new OverviewController().printOverviews();
 
     Stage window;
 
@@ -26,33 +27,37 @@ public class ApplicationController extends Application {
         BorderPane layout = new BorderPane();
         VBox list = new VBox();
         list.getChildren().add(new Label("Welkom!"));
-        list.getChildren().add(new Label("kies een van de volgende acties:"));
+        list.getChildren().add(new Label("Kies een van de volgende acties:"));
         HBox buttons = new HBox();
-        Button Courses = new Button("cursussen zien en wijzigen");
+        Button Courses = new Button("Cursussen zien en wijzigen");
         Courses.setOnAction((Action) -> {
             window.setScene(courses);
         });
-        Button cursists = new Button("cursisten zien en wijzigen");
+        Button cursists = new Button("Cursisten zien en wijzigen");
         cursists.setOnAction((Action) -> {
             window.setScene(this.cursists);
         });
-        Button registrations = new Button("inschrijvingen zien en wijzigen");
+        Button registrations = new Button("Inschrijvingen zien en wijzigen");
         registrations.setOnAction((Action) -> {
             window.setScene(this.registrations);
         });
-        Button certificates = new Button("diploma's zien en wijzigen");
+        Button certificates = new Button("Diploma's zien en wijzigen");
         certificates.setOnAction((Action) -> {
             window.setScene(this.certificates);
         });
-        Button modules = new Button("modules zien en wijzigen");
+        Button modules = new Button("Modules zien en wijzigen");
         modules.setOnAction((Action) -> {
             window.setScene(this.modules);
         });
-        Button webcasts = new Button("webcasts zien en wijzigen");
+        Button webcasts = new Button("Webcasts zien en wijzigen");
         webcasts.setOnAction((Action) -> {
             window.setScene(this.webcasts);
         });
-        buttons.getChildren().addAll(Courses, cursists, registrations, certificates, modules, webcasts);
+        Button overview = new Button("Laat overzichten zien");
+        overview.setOnAction((Action) -> {
+            window.setScene(this.overviews);
+        });
+        buttons.getChildren().addAll(Courses, cursists, registrations, certificates, modules, webcasts, overview);
         list.getChildren().add(buttons);
         layout.setCenter(list);
         this.index = new Scene(layout);
