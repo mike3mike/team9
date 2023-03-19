@@ -19,21 +19,20 @@ public class Cursist {
     private String city;
     private String country;
     private int id;
-    private ArrayList diplomas;
+    private ArrayList<Certificate> diplomas = new ArrayList<>();
     private ArrayList<CourseDomain> enrolledCourses = new ArrayList<>();
     private ConnectionDB con = new ConnectionDB();
 
     /* this is the constructor */
     public Cursist(String name, String email, String dateOfBirth, String gender, String addres, String Postalcode,
             String city,
-            String country, int id, ArrayList diplomas, ArrayList<CourseDomain> enrolledCourses) {
+            String country, int id, ArrayList<Certificate> diplomas, ArrayList<CourseDomain> enrolledCourses) {
         this.name = name;
         this.email = email;
         this.dateOfBirth = dateOfBirth;
         this.gender = gender;
         this.addres = addres;
         this.postalcode = postalcode;
-
         this.city = city;
         this.country = country;
         this.diplomas = diplomas;
