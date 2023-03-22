@@ -76,7 +76,6 @@ public class OverviewController {
         return printOverviews;
     }
 
-    @Override
     public void start(Stage stage) throws Exception {
 
         stage.setScene(printOverviews());
