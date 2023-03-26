@@ -1,5 +1,6 @@
 package Gui;
 
+import javafx.application.Application;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
@@ -9,7 +10,7 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
-public class OverviewController {
+public class OverviewController extends Application {
 
     Scene index;
 
@@ -75,6 +76,7 @@ public class OverviewController {
         layout.setCenter(list);
         return printOverviews;
     }
+    @Override
 
     public void start(Stage stage) throws Exception {
 
