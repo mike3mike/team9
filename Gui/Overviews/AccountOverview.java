@@ -9,7 +9,7 @@ import javafx.scene.control.Label;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
-public class AccountCertificateOverview {
+public class AccountOverview {
 
     public Scene getScene() {
 

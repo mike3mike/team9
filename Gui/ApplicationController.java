@@ -17,8 +17,9 @@ import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
-import Gui.Overviews.AccountCertificateOverview;
+import Gui.Overviews.AccountOverview;
 import Gui.Overviews.AccountCourseOverview;
+import Gui.Overviews.AccountOverview;
 import Gui.Overviews.AverageOverview;
 import Gui.Overviews.CompletedCoursesOverview;
 import Gui.Overviews.GenderOverview;
@@ -144,7 +145,7 @@ public class ApplicationController extends Application {
         });
         Button account = new Button("Behaalde certificaten per account");
         account.setOnAction((Action) -> {
-            AccountCertificateOverview accountCertificateOverview = new AccountCertificateOverview();
+            AccountOverview accountCertificateOverview = new AccountOverview();
             window.setScene(accountCertificateOverview.getScene());
         });
         Button webcasts = new Button("Top 3 meest bekeken webcasts");
