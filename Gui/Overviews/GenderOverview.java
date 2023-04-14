@@ -6,6 +6,7 @@ import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
@@ -15,9 +16,19 @@ public class GenderOverview {
     private static final int BUTTON_WIDTH = 120;
     private static final int BUTTON_HEIGHT = 50;
 
+    private ComboBox<String> genderOptions = new ComboBox<>();
+    private String gender;
+    private int completedPercentage;
+
     public Scene getScene() {
-        // Create a label with the message
-        Label messageLabel = new Label("Hij werkt!");
+
+        // Create label with results
+        Label result = new Label("");
+        result.setVisible(false);
+
+        // Create a label with the message "Kies een geslacht" and a dropdown
+        Label messageLabel = new Label("Kies een geslacht");
+        genderOptions.getItems().addAll("M", "F");
 
         // Create a button to go back
         Button back = new Button("Ga terug");
@@ -34,13 +45,44 @@ public class GenderOverview {
             Stage thisStage = (Stage) node.getScene().getWindow();
             thisStage.close();
         });
+        Button show = new Button("Laat resultaat zien");
+        show.setOnAction((Action) -> {
+            gender = getDropdownValue();
+            completedPercentage = getCompletedPercentage();
+            result.setText("voor het geslacht " + gender + " is " + String.valueOf(completedPercentage)
+                    + " procent van de ingeschreven cursussen behaald");
+            result.setVisible(true);
+        });
 
-        // Create a VBox to hold the label and button
-        VBox vbox = new VBox(10, messageLabel, back);
-        vbox.setAlignment(Pos.CENTER);
+        // Create HBox to hold label and dropdown
+        HBox hBox1 = new HBox(10, messageLabel, genderOptions);
+        hBox1.setAlignment(Pos.CENTER);
+
+        // Create HBox to hold the buttons
+        HBox hBox2 = new HBox(10, show, back);
+        hBox2.setAlignment(Pos.CENTER);
+
+        // Create a VBox to hold the HBox and button
+        VBox vBox = new VBox(10, hBox1, hBox2, result);
+        vBox.setAlignment(Pos.CENTER);
 
         // Create a new Scene with the VBox as the root node
-        return new Scene(vbox, 400, 300);
+        return new Scene(vBox, 500, 300);
+    }
+
+    private String getDropdownValue() {
+        String selectedValue = genderOptions.getValue();
+        if (selectedValue.equals("M")) {
+            return "male";
+        } else if (selectedValue.equals("F")) {
+            return "female";
+        }
+        return "";
+    }
+
+    private int getCompletedPercentage() {
+        // TODO add functionality to get the percentage of courses completed
+        return 1;
     }
 
 }

@@ -17,7 +17,14 @@ import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
+import Gui.Overviews.AccountCertificateOverview;
+import Gui.Overviews.AccountCourseOverview;
+import Gui.Overviews.AverageOverview;
+import Gui.Overviews.CompletedCoursesOverview;
 import Gui.Overviews.GenderOverview;
+import Gui.Overviews.GraduatedOverview;
+import Gui.Overviews.SuggestedCourseOverview;
+import Gui.Overviews.WebcastOverview;
 
 public class ApplicationController extends Application {
     Scene index;
@@ -127,31 +134,38 @@ public class ApplicationController extends Application {
         });
         Button average = new Button("Gemiddelde voortgang per cursus en per module");
         average.setOnAction((Action) -> {
-            // functionaliteit
+            AverageOverview averageScene = new AverageOverview();
+            window.setScene(averageScene.getScene());
         });
         Button accountCourse = new Button("Voortgang cursus en modules per account");
         accountCourse.setOnAction((Action) -> {
-            // functionaliteit
+            AccountCourseOverview accountCourseScene = new AccountCourseOverview();
+            window.setScene(accountCourseScene.getScene());
         });
         Button account = new Button("Behaalde certificaten per account");
         account.setOnAction((Action) -> {
-            // functionaliteit
+            AccountCertificateOverview accountCertificateOverview = new AccountCertificateOverview();
+            window.setScene(accountCertificateOverview.getScene());
         });
         Button webcasts = new Button("Top 3 meest bekeken webcasts");
         webcasts.setOnAction((Action) -> {
-            // functionaliteit
+            WebcastOverview webcastScene = new WebcastOverview();
+            window.setScene(webcastScene.getScene());
         });
         Button completedCourses = new Button("Top 3 meest behaalde cursussen");
         completedCourses.setOnAction((Action) -> {
-            // functionaliteit
+            CompletedCoursesOverview completedCourseScene = new CompletedCoursesOverview();
+            window.setScene(completedCourseScene.getScene());
         });
         Button suggested = new Button("Aanbevolen cursussen");
         suggested.setOnAction((Action) -> {
-            // functionaliteit
+            SuggestedCourseOverview suggestedCourseScene = new SuggestedCourseOverview();
+            window.setScene(suggestedCourseScene.getScene());
         });
         Button graduated = new Button("Aantal geslaagde cursisten per cursus");
         graduated.setOnAction((Action) -> {
-            // functionaliteit
+            GraduatedOverview graduatedScene = new GraduatedOverview();
+            window.setScene(graduatedScene.getScene());
         });
 
         HBox row1 = new HBox(20);
