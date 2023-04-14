@@ -28,7 +28,7 @@ public class GenderOverview {
 
         // Create a label with the message "Kies een geslacht" and a dropdown
         Label messageLabel = new Label("Kies een geslacht");
-        genderOptions.getItems().addAll("M", "F");
+        genderOptions.getItems().addAll("Male", "Female");
 
         // Create a button to go back
         Button back = new Button("Ga terug");
@@ -49,7 +49,7 @@ public class GenderOverview {
         show.setOnAction((Action) -> {
             gender = getDropdownValue();
             completedPercentage = getCompletedPercentage();
-            result.setText("voor het geslacht " + gender + " is " + String.valueOf(completedPercentage)
+            result.setText("Voor het geslacht " + gender + " is " + String.valueOf(completedPercentage)
                     + " procent van de ingeschreven cursussen behaald");
             result.setVisible(true);
         });
