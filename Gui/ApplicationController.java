@@ -37,13 +37,8 @@ public class ApplicationController extends Application {
     @Override
     public void start(Stage window) throws Exception {
         this.window = window;
-        BorderPane layout = new BorderPane();
-        VBox list = new VBox();
-        list.getChildren().add(new Label("Welkom!"));
-        list.getChildren().add(new Label("Kies een van de volgende acties:"));
-        HBox buttons = new HBox();
-        Button Courses = new Button("Cursussen zien en wijzigen");
-        Courses.setOnAction((Action) -> {
+        Button coursesButton = new Button("Cursussen zien en wijzigen");
+        coursesButton.setOnAction((Action) -> {
             window.setScene(courses);
         });
         Button cursists = new Button("Cursisten zien en wijzigen");
@@ -70,10 +65,39 @@ public class ApplicationController extends Application {
         overview.setOnAction((Action) -> {
             window.setScene(this.overviews);
         });
-        buttons.getChildren().addAll(Courses, cursists, registrations, certificates, modules, webcasts, overview);
-        list.getChildren().add(buttons);
-        layout.setCenter(list);
-        this.index = new Scene(layout);
+        overview.setPrefWidth(BUTTON_WIDTH * 4);
+
+        HBox row1 = new HBox(20);
+        row1.getChildren().addAll(coursesButton, cursists, registrations);
+        row1.setAlignment(Pos.CENTER);
+
+        HBox row2 = new HBox(20);
+        row2.getChildren().addAll(certificates, modules, webcasts);
+        row2.setAlignment(Pos.CENTER);
+
+        HBox row3 = new HBox(20);
+        row3.getChildren().add(overview);
+        row3.setAlignment(Pos.CENTER);
+
+        GridPane gridPane = new GridPane();
+        gridPane.setHgap(20);
+        gridPane.setVgap(20);
+        gridPane.setPadding(new Insets(20));
+        gridPane.addRow(0, row1);
+        gridPane.addRow(1, row2);
+        gridPane.addRow(2, row3);
+
+        Text title = new Text("Hoofdpagina");
+        title.setFont(Font.font("Arial", FontWeight.BOLD, 24));
+        title.setFill(Color.WHITE);
+        StackPane titlePane = new StackPane(title);
+        titlePane.setStyle("-fx-background-color: #0072C6;");
+        titlePane.setPadding(new Insets(20));
+
+        BorderPane root = new BorderPane();
+        root.setCenter(gridPane);
+        root.setTop(titlePane);
+        this.index = new Scene(root);
         window.setScene(index);
         window.show();
     }
