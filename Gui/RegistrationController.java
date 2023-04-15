@@ -18,6 +18,7 @@ import javafx.scene.control.TableView.TableViewSelectionModel;
 import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
@@ -101,13 +102,25 @@ public class RegistrationController extends Application {
 
             Button add = new Button("add new Registration");
             Button delete = new Button("delete");
+            Button edit = new Button("edit");
             Button Back = new Button("go back");
             HBox buttons = new HBox();
-            buttons.getChildren().addAll(Back, add, delete);
+            buttons.getChildren().addAll(Back, add,edit, delete);
             add.setOnAction((EventHandler) -> {
                 Stage stage = new Stage();
                 stage.setScene(addregistrations());
                 stage.show();
+
+            });
+            edit.setOnAction((EventHandler) -> {
+                TableViewSelectionModel selectionModel = registrations.getSelectionModel();
+                ObservableList<Registration> selectedItems = selectionModel.getSelectedItems();
+                Registration id = selectedItems.get(0);
+                Stage stage = new Stage();
+                editRegistration(id);
+                stage.setScene(editRegistration(id));
+                stage.show();
+                registrations.refresh();
 
             });
             delete.setOnAction((EventHandler) -> {
@@ -241,6 +254,82 @@ public class RegistrationController extends Application {
             System.out.println(e);
             // TODO: handle exception
         }
+
+    }
+
+     // this method returns a Scene where you can edit a course.
+     public Scene editRegistration(Registration registration) {
+        VBox layout = new VBox();
+      ChoiceBox<CourseDomain> choiceBoxCourses = new ChoiceBox();
+      for (int i = 0; courses.size() > i; i++) {
+        choiceBoxCourses.getItems().add(courses.get(i));
+      }
+      ChoiceBox<Cursist> choiceBoxCursists = new ChoiceBox();
+      for (int i = 0; cursists.size() > i; i++) {
+        choiceBoxCursists.getItems().add(cursists.get(i));
+      }
+      HBox PublishDateBox = new HBox();
+      TextField publishDay = new TextField();
+      publishDay.setPromptText("Dag");
+      TextField publishMonth = new TextField();
+      publishMonth.setPromptText("maand");
+
+      TextField publishYear = new TextField();
+      publishYear.setPromptText("jaar");
+
+      PublishDateBox.getChildren().addAll(publishDay, publishMonth, publishYear);
+      layout.getChildren().add(new Label("Course"));
+      layout.getChildren().add(choiceBoxCourses);
+      layout.getChildren().add(new Label("Cursist"));
+      layout.getChildren().add(choiceBoxCursists);
+      layout.getChildren().add(new Label("Registration Date"));
+      layout.getChildren().add(PublishDateBox);
+
+      Button button = new Button("verzenden");
+
+      layout.getChildren().add(button);
+            button.setOnAction((eventHandler) -> {
+                String date = publishDay.getText() + "-" + publishMonth.getText() + "-" + publishYear.getText();
+
+                try {
+                    editButton(choiceBoxCourses, choiceBoxCursists, date, registration);
+                    layout.getChildren().add(new Label("Cursus is gewijzigd"));
+
+                } catch (SQLException e) {
+                    System.out.println(e);
+                    layout.getChildren().add(new Label(e.getMessage()));
+
+                }
+            });
+        
+
+        Scene printCourses = new Scene(layout);
+
+        return printCourses;
+
+    }
+
+    // this method is a submit method for the editcourse method. it excecutes an SQL
+    // query that updates the course info and it also updates the info of the course
+    // on the table.
+    private void editButton(ChoiceBox choiceBoxCourses, ChoiceBox choiceBoxCursists, String date, Registration registration) throws SQLException {
+        CourseDomain course = (CourseDomain) choiceBoxCourses.getValue();
+        Cursist cursist = (Cursist) choiceBoxCursists.getValue();
+        int CourseID = course.getId();
+        int curistID = cursist.getid();
+        int id = registration.getId();
+
+        String SQL = "UPDATE inschrijving SET cursusID = '"+CourseID+"',cursistID = '"+curistID+"',inschrijfdatum= '"+date+"' WHERE id=" + id + ";";
+        con.execute(SQL);
+        int registrationIndex = registrations.getItems().indexOf(registration);
+        Registration newRegistration = new Registration(curistID, CourseID, date, id);
+        Object[] Registrations = registrations.getItems().toArray();
+        Registrations[registrationIndex] = newRegistration;
+        registrations.getItems().clear();
+        registrations.getItems().addAll(Registrations);
+        Stage thisStage = (Stage) choiceBoxCourses.getScene().getWindow();
+                thisStage.close();
+        
 
     }
 
