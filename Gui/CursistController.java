@@ -18,6 +18,7 @@ import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
@@ -81,10 +82,11 @@ public class CursistController extends Application {
 
             Button add = new Button("voeg cursist toe");
             Button delete = new Button("verwijder");
+            Button edit = new Button("edit");
             Button Back = new Button("ga terug");
             Button view = new Button("bekijk cursist");
             HBox buttons = new HBox();
-            buttons.getChildren().addAll(Back, add, view, delete);
+            buttons.getChildren().addAll(Back, add,edit, view, delete);
 
             add.setOnAction((EventHandler) -> {
                 Stage stage = new Stage();
@@ -92,7 +94,24 @@ public class CursistController extends Application {
                 stage.show();
 
             });
+            edit.setOnAction((EventHandler) -> {
+                TableViewSelectionModel selectionModel = Cursists.getSelectionModel();
+                ObservableList<Cursist> selectedItems = selectionModel.getSelectedItems();
+                Cursist id = selectedItems.get(0);
+                // courses.getItems().remove(id);
+                Stage stage = new Stage();
+                try {
+                    editCursist(id);
+                    stage.setScene(editCursist(id));
+                } catch (SQLException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                }
+              
+                stage.show();
+                Cursists.refresh();
 
+            });
             view.setOnAction((EventHandler) -> {
                 TableViewSelectionModel selectionModel = Cursists.getSelectionModel();
                 ObservableList<Cursist> selectedItems = selectionModel.getSelectedItems();
@@ -384,6 +403,95 @@ public class CursistController extends Application {
 
         });
         return progress;
+
+    }
+    public Scene editCursist(Cursist cursist) throws SQLException {
+        ResultSet rs = con.getList("SELECT * FROM cursist where ID = " + cursist.getId());
+            VBox layout = new VBox();
+            while(rs.next()){
+                String[] dateArray =rs.getString("geboortedatum").split("-");
+            TextField NameInput = new TextField(rs.getString("naam"));
+            TextField emailInput = new TextField(rs.getString("email"));
+            HBox PublishDateBox = new HBox();
+            TextField publishDay = new TextField(dateArray[2]);
+            publishDay.setPromptText("Dag");
+            TextField publishMonth = new TextField(dateArray[1]);
+            publishMonth.setPromptText("maand");
+    
+            TextField publishYear = new TextField(dateArray[0]);
+            publishYear.setPromptText("jaar");
+    
+            PublishDateBox.getChildren().addAll(publishDay, publishMonth, publishYear);
+            TextField genderInput = new TextField(rs.getString("geslacht"));
+            TextField cityInput = new TextField(rs.getString("woonplaats"));
+            TextField countryInput = new TextField(rs.getString("land"));
+            TextField addresInput = new TextField(rs.getString("Adres"));
+            TextField postalcodeInput = new TextField(rs.getString("postcode"));
+            layout.getChildren().add(new Label("naam"));
+            layout.getChildren().add(NameInput);
+            layout.getChildren().add(new Label("email"));
+            layout.getChildren().add(emailInput);
+            layout.getChildren().add(new Label("geboortedatum"));
+            layout.getChildren().add(PublishDateBox);
+            layout.getChildren().add(new Label("geslacht"));
+            layout.getChildren().add(genderInput);
+            layout.getChildren().add(new Label("woonplaats"));
+            layout.getChildren().add(cityInput);
+            layout.getChildren().add(new Label("land"));
+            layout.getChildren().add(countryInput);
+            layout.getChildren().add(new Label("Adres"));
+            layout.getChildren().add(addresInput);
+            layout.getChildren().add(new Label("postcode"));
+            layout.getChildren().add(postalcodeInput);
+            
+            Button button = new Button("verzenden");
+            layout.getChildren().add(button);
+                button.setOnAction((eventHandler) -> {
+            String date = publishDay.getText() + "-" + publishMonth.getText() + "-" + publishYear.getText();
+
+                    try {
+                        editCursist(NameInput, emailInput, date, genderInput, cityInput, countryInput, addresInput,
+                        postalcodeInput, cursist);
+                        layout.getChildren().add(new Label("Cursus is gewijzigd"));
+
+                    } catch (SQLException e) {
+                        layout.getChildren().add(new Label(e.getMessage()));
+
+                    }
+                });
+            
+
+            Scene printCourses = new Scene(layout);
+
+            return printCourses;
+            }
+            return null;
+
+    }
+
+    // this method is a submit method for the editcourse method. it excecutes an SQL
+    // query that updates the course info and it also updates the info of the course
+    // on the table.
+    private void editCursist(TextField NameInput,TextField emailInput, String date,TextField genderInput,TextField cityInput,TextField countryInput,TextField addresInput, TextField
+    postalcodeInput, Cursist cursist) throws SQLException {
+        String name = NameInput.getText();
+        String email = emailInput.getText();
+        String gender = genderInput.getText();
+        String city = cityInput.getText();
+        String country = countryInput.getText();
+        String addres = addresInput.getText();
+        String postalcode = postalcodeInput.getText();
+        String SQL = "UPDATE cursist SET naam = '"+name+"',email = '"+email+"',geboortedatum = '"+gender+"',geslacht = '"+city+"',land = '"+country+"',adres= '"+addres+"',postcode= '"+postalcode+"',woonplaats= '"+city+"' WHERE id=" + cursist.getId() + ";";
+        con.execute(SQL);
+        int courseIndex = Cursists.getItems().indexOf(cursist);
+        Cursist changedCursist = new Cursist(name, email, date, gender, addres, postalcode, city, country, courseIndex, cursist.getDiplomas(), cursist.getEnrolledCourses());
+        Object[] cursists = Cursists.getItems().toArray();
+        cursists[courseIndex] = changedCursist;
+        Cursists.getItems().clear();
+        Cursists.getItems().addAll(cursists);
+        Stage thisStage = (Stage) NameInput.getScene().getWindow();
+                thisStage.close();
+        
 
     }
 

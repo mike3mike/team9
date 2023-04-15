@@ -16,6 +16,7 @@ import javafx.scene.control.TableView.TableViewSelectionModel;
 import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
@@ -23,6 +24,7 @@ import javafx.stage.Stage;
 public class ModuleController extends Application {
     private ConnectionDB con = new ConnectionDB();
     private TableView Modules = new TableView<>();
+    private String date;
 
     private TableColumn<Module, String> titleColumn = new TableColumn<>("title ");
     private TableColumn<Module, String> descriptionColumn = new TableColumn<>("description");
@@ -77,9 +79,10 @@ public class ModuleController extends Application {
 
             Button add = new Button("add new Cursis");
             Button delete = new Button("delete");
+            Button edit = new Button("edit");
             Button Back = new Button("go back");
             HBox buttons = new HBox();
-            buttons.getChildren().addAll(Back, add, delete);
+            buttons.getChildren().addAll(Back, add,edit, delete);
             add.setOnAction((EventHandler) -> {
                 Stage stage = new Stage();
                 stage.setScene(addModule());
@@ -95,8 +98,19 @@ public class ModuleController extends Application {
                 try {
                     deleteModule(id.getModuleId());
                 } catch (SQLException e) {
-                    buttons.getChildren().add(new Label(e.getLocalizedMessage()));
                 }
+
+            });
+            edit.setOnAction((EventHandler) -> {
+                TableViewSelectionModel selectionModel = Modules.getSelectionModel();
+                ObservableList<Domain.Module> selectedItems = selectionModel.getSelectedItems();
+                Domain.Module id = selectedItems.get(0);
+                // courses.getItems().remove(id);
+                Stage stage = new Stage();
+                editModule(id);
+                stage.setScene(editModule(id));
+                stage.show();
+                Modules.refresh();
 
             });
             Back.setOnAction((Action) -> {
@@ -159,12 +173,12 @@ public class ModuleController extends Application {
         layout.getChildren().add(contactInput);
         layout.getChildren().add(new Label("email van contactpersoon"));
         layout.getChildren().add(contactEmail);
+        date = publishDay.getText() + "-" + publishMonth.getText() + "-" + publishYear.getText();
 
         Button button = new Button("verzenden");
         layout.getChildren().add(button);
         button.setOnAction((eventHandler) -> {
 
-            String date = publishDay.getText() + "-" + publishMonth.getText() + "-" + publishYear.getText();
 
             try {
                 extracted(titleInput, descriptionInput, statusChoiceBox, date, versionInput, contactInput,
@@ -251,6 +265,104 @@ public class ModuleController extends Application {
     private void deleteModule(int id) throws SQLException {
         String SQL = "DELETE FROM module WHERE id=" + id + ";";
         con.execute(SQL);
+
+    }
+    public Scene editModule (Domain.Module module) {
+        try {
+
+            int id = module.getID();
+
+            ResultSet rs = con.getList("SELECT * FROM module INNER JOIN contentItem ON module.contentItemid = contentItem.id where contentItemid = " + id);
+            VBox layout = new VBox();
+            date = module.getPublishDate();
+            String[] dataArray = date.split("-");
+
+            while (rs.next()) {
+        TextField titleInput = new TextField(rs.getString("titel"));
+        TextField descriptionInput = new TextField(rs.getString("status"));
+        ChoiceBox<String> statusChoiceBox = new ChoiceBox();
+        statusChoiceBox.getItems().add("concept");
+        statusChoiceBox.getItems().add("actief");
+        statusChoiceBox.getItems().add("gearchiveerd");
+        statusChoiceBox.selectionModelProperty().getValue().select(rs.getString("titel"));;
+        HBox PublishDateBox = new HBox();
+        TextField publishDay = new TextField();
+        publishDay.setPromptText("Dag");
+        TextField publishMonth = new TextField();
+        publishMonth.setPromptText("maand");
+
+        TextField publishYear = new TextField();
+        publishYear.setPromptText("jaar");
+
+        PublishDateBox.getChildren().addAll(publishDay, publishMonth, publishYear);
+        TextField versionInput = new TextField(rs.getString("versie"));
+        TextField contactInput = new TextField(rs.getString("naamContactpersoon"));
+        TextField contactEmail = new TextField(rs.getString("email"));
+        layout.getChildren().add(new Label("titel"));
+        layout.getChildren().add(titleInput);
+        layout.getChildren().add(new Label("beschrijving"));
+        layout.getChildren().add(descriptionInput);
+        layout.getChildren().add(new Label("status"));
+        layout.getChildren().add(statusChoiceBox);
+        layout.getChildren().add(new Label("publicatie datum"));
+        layout.getChildren().add(PublishDateBox);
+        layout.getChildren().add(new Label("versie"));
+        layout.getChildren().add(versionInput);
+        layout.getChildren().add(new Label("contactpersoon"));
+        layout.getChildren().add(contactInput);
+        layout.getChildren().add(new Label("email van contactpersoon"));
+        layout.getChildren().add(contactEmail);
+
+        Button button = new Button("verzenden");
+        layout.getChildren().add(button);
+                button.setOnAction((eventHandler) -> {
+                    try {
+                        editButton(titleInput, descriptionInput, statusChoiceBox, date, versionInput, contactInput,
+                        contactEmail, module);
+                        layout.getChildren().add(new Label("Cursus is gewijzigd"));
+
+                    } catch (SQLException e) {
+                        layout.getChildren().add(new Label(e.getMessage()));
+
+                    }
+                });
+            }
+
+            Scene printCourses = new Scene(layout);
+
+            return printCourses;
+
+        } catch (SQLException e) {
+System.out.println(e);
+        }
+        return null;
+
+    }
+
+    // this method is a submit method for the editcourse method. it excecutes an SQL
+    // query that updates the course info and it also updates the info of the course
+    // on the table.
+    private void editButton(TextField titleInput,TextField descriptionInput,ChoiceBox statusChoiceBox,String date,TextField versionInput,TextField contactInput,TextField
+    contactEmailInput, Domain.Module module) throws SQLException {
+        String title = titleInput.getText();
+        String description = descriptionInput.getText();
+        String status = statusChoiceBox.getSelectionModel().getSelectedItem().toString();
+        String version = versionInput.getText();
+        String contact = contactInput.getText();
+        String contactEmail = contactEmailInput.getText();
+        int id = module.getID();
+        String SQL = "UPDATE contentItem SET titel= '"+title+"',beschrijving= '"+description+"',status= '"+status+"',publicatiedatum= '"+date+"' WHERE id=" + id + ";";
+        con.execute(SQL);
+        SQL = "UPDATE module SET versie = '"+version+"',naamContactpersoon = '"+contact+"',email '"+contactEmail+"' WHERE contentItemid='"+id+"'";
+        int courseIndex = Modules.getItems().indexOf(module);
+        Domain.Module changedModule = new Domain.Module(id, id, date, status, title, description, version, contact, contactEmail);
+        Object[] modules = Modules.getItems().toArray();
+        modules[courseIndex] = changedModule;
+        Modules.getItems().clear();
+        Modules.getItems().addAll(modules);
+        Stage thisStage = (Stage) titleInput.getScene().getWindow();
+                thisStage.close();
+        
 
     }
 
