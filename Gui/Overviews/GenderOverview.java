@@ -87,7 +87,7 @@ public class GenderOverview {
         if (selectedValue.equals("Male")) {
             result.put("m", "male");
         } else if (selectedValue.equals("Female")) {
-            result.put("v", "female");
+            result.put("f", "female");
         }
         return result;
     }
@@ -97,7 +97,9 @@ public class GenderOverview {
         Iterator<Map.Entry<String, String>> iterator = getDropdownValue().entrySet().iterator();
         String gender = iterator.next().getKey();
         try {
-            ResultSet sr = con.getList("SELECT geslacht, COUNT(*) AS totaal, SUM(CASE WHEN certificaat.beoordeling > 5.5 THEN 1 ELSE 0 END) AS totaalGehaald FROM certificaat JOIN cursist ON cursist.id = certificaat.CursistID WHERE geslacht = '" + gender + "' GROUP BY geslacht");
+            ResultSet sr = con.getList(
+                    "SELECT geslacht, COUNT(*) AS totaal, SUM(CASE WHEN certificaat.beoordeling > 5.5 THEN 1 ELSE 0 END) AS totaalGehaald FROM certificaat JOIN cursist ON cursist.id = certificaat.CursistID WHERE geslacht = '"
+                            + gender + "' GROUP BY geslacht");
             sr.next();
             int total = sr.getInt("totaal");
             int totalCompleted = sr.getInt("totaalGehaald");
