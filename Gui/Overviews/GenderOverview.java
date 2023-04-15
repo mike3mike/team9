@@ -1,5 +1,13 @@
 package Gui.Overviews;
 
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+
+import Database.ConnectionDB;
+import Domain.Cursist;
 import Gui.ApplicationController;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -13,11 +21,13 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
 public class GenderOverview {
+    private ConnectionDB con = new ConnectionDB();
+
     private static final int BUTTON_WIDTH = 120;
     private static final int BUTTON_HEIGHT = 50;
 
     private ComboBox<String> genderOptions = new ComboBox<>();
-    private String gender;
+    private Map<String, String> gender;
     private int completedPercentage;
 
     public Scene getScene() {
@@ -47,7 +57,8 @@ public class GenderOverview {
         });
         Button show = new Button("Laat resultaat zien");
         show.setOnAction((Action) -> {
-            gender = getDropdownValue();
+            Iterator<Map.Entry<String, String>> iterator = getDropdownValue().entrySet().iterator();
+            String gender = iterator.next().getValue();
             completedPercentage = getCompletedPercentage();
             result.setText("Voor het geslacht " + gender + " is " + String.valueOf(completedPercentage)
                     + " procent van de ingeschreven cursussen behaald");
@@ -70,19 +81,33 @@ public class GenderOverview {
         return new Scene(vBox, 500, 300);
     }
 
-    private String getDropdownValue() {
+    private Map<String, String> getDropdownValue() {
         String selectedValue = genderOptions.getValue();
+        Map<String, String> result = new HashMap<>();
         if (selectedValue.equals("Male")) {
-            return "male";
+            result.put("m", "male");
         } else if (selectedValue.equals("Female")) {
-            return "female";
+            result.put("v", "female");
         }
-        return "";
+        return result;
     }
 
-    private int getCompletedPercentage() {
+    private Integer getCompletedPercentage() {
         // TODO add functionality to get the percentage of courses completed
-        return 1;
+        Iterator<Map.Entry<String, String>> iterator = getDropdownValue().entrySet().iterator();
+        String gender = iterator.next().getKey();
+        try {
+            ResultSet sr = con.getList("SELECT geslacht, COUNT(*) AS totaal, SUM(CASE WHEN certificaat.beoordeling > 5.5 THEN 1 ELSE 0 END) AS totaalGehaald FROM certificaat JOIN cursist ON cursist.id = certificaat.CursistID WHERE geslacht = '" + gender + "' GROUP BY geslacht");
+            sr.next();
+            int total = sr.getInt("totaal");
+            int totalCompleted = sr.getInt("totaalGehaald");
+            double percentage = (double) totalCompleted / total;
+            int totalPercentage = (int) (percentage * 100.00);
+            return totalPercentage;
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        }
+        return null;
     }
 
 }
