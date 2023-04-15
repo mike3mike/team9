@@ -72,9 +72,9 @@ public class GenderOverview {
 
     private String getDropdownValue() {
         String selectedValue = genderOptions.getValue();
-        if (selectedValue.equals("M")) {
+        if (selectedValue.equals("Male")) {
             return "male";
-        } else if (selectedValue.equals("F")) {
+        } else if (selectedValue.equals("Female")) {
             return "female";
         }
         return "";
