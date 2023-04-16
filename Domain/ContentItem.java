@@ -8,6 +8,7 @@ public abstract class ContentItem {
     private String title;
     private String description;
 
+
     public ContentItem(int iD, String publishDate, String status, String title, String description) {
         this.ID = iD;
         this.publishDate = publishDate;

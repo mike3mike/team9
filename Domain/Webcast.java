@@ -7,11 +7,12 @@ public class Webcast extends ContentItem {
     private String URL;
     private int id;
 
-    public Webcast(int iD, int webcastID, String publishDate, String status, String title, String description,
+
+    public Webcast(int contentItemId, int webcastID, String contentItemPublishDate, String contentItemStatus, String contentItemTitle, String contentItemDescription,
             String URL,
             String speaker,
             String organisation) {
-        super(iD, publishDate, status, title, description);
+        super(contentItemId, contentItemPublishDate, contentItemStatus, contentItemTitle, contentItemDescription);
         this.speaker = speaker;
         this.organisation = organisation;
         this.URL = URL;

@@ -1,26 +1,21 @@
 package Domain;
 
-import javafx.scene.control.TreeItem;
-
 public class Progress {
 
     private Cursist cursist;
-    private Webcast webcast;
-    private Module module;
     private int progress;
+    private ContentItem contentItem;
     private int id;
 
-    public Progress(Cursist cursist, Module module, int progress, int id) {
+    public Progress(Cursist cursist, ContentItem contentItem, int progress, int id) {
         this.cursist = cursist;
-        this.module = module;
+        this.contentItem = contentItem;
         this.progress = progress;
         this.id = id;
-
     }
 
-    public Progress(Cursist cursist, Webcast webcast, int progress, int id) {
+    public Progress(Cursist cursist, int progress, int id) {
         this.cursist = cursist;
-        this.webcast = webcast;
         this.progress = progress;
         this.id = id;
     }
@@ -38,12 +33,8 @@ public class Progress {
         return cursist;
     }
 
-    public Webcast getWebcast() {
-        return webcast;
-    }
-
-    public Module getModule() {
-        return module;
+    public ContentItem getContentItem() {
+        return contentItem;
     }
 
     public int getProgress() {
@@ -52,13 +43,7 @@ public class Progress {
 
     @Override
     public String toString() {
-        if (module.equals(null)) {
-            return webcast + " progressie: " + progress + "%";
-
-        } else {
-            return module + " progressie: " + progress + "%";
-
-        }
+        return contentItem.getTitle() + " progressie: " + progress + "%";
     }
 
 }

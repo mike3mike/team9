@@ -25,6 +25,7 @@ import Domain.CourseDomain;
 import Domain.Cursist;
 import Domain.Module;
 import Domain.Progress;
+import Domain.Webcast;
 import Components.ErrorMessage;
 import Components.Validators;
 
@@ -282,8 +283,12 @@ public class CursistController extends Application {
                 Item = (TreeItem<Progress>) webcasts.getSelectionModel().getSelectedItem();
             }
 
-            Item.setValue(null);
-
+            // Item.setValue(null);
+            Progress progress = (Progress) Item.getValue();
+            Progress newProgress = editProgress(progress);
+            Item.setValue(newProgress);
+            System.out.println();
+            System.out.println();
         });
 
         return new Scene(structure, 400, 350);
@@ -337,13 +342,24 @@ public class CursistController extends Application {
 
         try {
             ResultSet rs = con.getList(
-                    "SELECT titel, progressie from webcast INNER JOIN contentItem on contentItemid = contentItem.id INNER JOIN progressie on contentItem.id = progressie.contentitemID WHERE cursistID="
+                    "SELECT contentItem.id AS contentItemId, webcast.naamSpreker, url, progressID, beschrijving, webcast.organisatieWerk, contentItem.titel, contentItem.publicatiedatum, contentItem.status, progressie from webcast INNER JOIN contentItem on contentItemid = contentItem.id INNER JOIN progressie on contentItem.id = progressie.contentitemID WHERE cursistID="
                             + cursist.getid());
             while (rs.next()) {
                 String module = rs.getString("titel");
+                String publishDate = rs.getString("publicatiedatum");
+                String status = rs.getString("status");
                 int progress = rs.getInt("progressie");
-                webcasts.getChildren().add(new TreeItem<>(module + " progressie: " + progress + "%"));
-
+                int progressId = rs.getInt("progressID");
+                int contentItemId = rs.getInt("contentItemId");
+                String titel = rs.getString("titel");
+                String description = rs.getString("beschrijving");
+                String URL = rs.getString("url");
+                String speaker = rs.getString("naamSpreker");
+                String organisation = rs.getString("organisatieWerk");
+                Webcast webcast = new Webcast(contentItemId, contentItemId, publishDate, status, titel, description, URL, speaker, organisation);
+                Progress newProgress = new Progress(cursist, webcast, progress, progressId);
+                TreeItem treeItem = new TreeItem<Progress>(newProgress);
+                webcasts.getChildren().add(treeItem);
             }
         } catch (Exception e) {
             System.out.println(e);
