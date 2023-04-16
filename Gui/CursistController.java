@@ -269,7 +269,7 @@ public class CursistController extends Application {
 
         HBox treeviews = new HBox();
 
-        TreeView webcasts = viewedWebcasts(cursist);
+        TreeView<Progress> webcasts = viewedWebcasts(cursist);
         TreeView<Progress> modules = CoursesProgress(cursist);
         treeviews.getChildren().addAll(webcasts, modules);
         Button editProgress = new Button("progressie wijzigen");
@@ -287,8 +287,6 @@ public class CursistController extends Application {
             Progress progress = (Progress) Item.getValue();
             Progress newProgress = editProgress(progress);
             Item.setValue(newProgress);
-            System.out.println();
-            System.out.println();
         });
 
         return new Scene(structure, 400, 350);
@@ -323,7 +321,7 @@ public class CursistController extends Application {
                     Domain.Module module = new Module(ContentItemID, id, publishDate, status, title, description,
                             version, contact, contactEmail);
                     Progress Progress = new Progress(cursist, module, progress, progressID);
-
+                    
                     course.getChildren().add(new TreeItem<>(Progress));
 
                 }

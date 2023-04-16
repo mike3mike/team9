@@ -24,7 +24,7 @@ public class Cursist {
     private ConnectionDB con = new ConnectionDB();
 
     /* this is the constructor */
-    public Cursist(String name, String email, String dateOfBirth, String gender, String addres, String Postalcode,
+    public Cursist(String name, String email, String dateOfBirth, String gender, String addres, String postalcode,
             String city,
             String country, int id, ArrayList<Certificate> diplomas, ArrayList<CourseDomain> enrolledCourses) {
         this.name = name;
@@ -38,26 +38,24 @@ public class Cursist {
         this.diplomas = diplomas;
         this.id = id;
         try {
-            ResultSet rs = con.getList("SELECT * FROM inschrijving WHERE cursistID=" + id);
-            while (rs.next()) {
-                int courseid = rs.getInt("cursusID");
+            ResultSet enrollmentList = con.getList("SELECT * FROM inschrijving WHERE cursistID=" + id);
+            while (enrollmentList.next()) {
+                int courseid = enrollmentList.getInt("cursusID");
 
-                rs = con.getList("SELECT * FROM cursus WHERE id=" + courseid);
-                while (rs.next()) {
-                    String coursename = rs.getString("naam");
-                    String courseSubject = rs.getString("onderwerp");
-                    String coursedescription = rs.getString("introductietekst");
-                    String coursediffuculty = rs.getString("niveau");
+                ResultSet courseList = con.getList("SELECT * FROM cursus WHERE id=" + courseid);
+                while (courseList.next()) {
+                    String coursename = courseList.getString("naam");
+                    String courseSubject = courseList.getString("onderwerp");
+                    String coursedescription = courseList.getString("introductietekst");
+                    String coursediffuculty = courseList.getString("niveau");
                     this.enrolledCourses.add(
                             new CourseDomain(coursename, courseSubject, coursedescription, coursediffuculty, courseid));
-
                 }
             }
         } catch (Exception e) {
             System.out.println(e);
         }
         System.out.println(enrolledCourses);
-
     }
     /* getters and setters here */
 
