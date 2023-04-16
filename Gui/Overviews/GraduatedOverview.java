@@ -89,9 +89,9 @@ public class GraduatedOverview {
 
     public int getCompletedNumber() {
         try {
-            ResultSet rs = con.getList("SELECT COUNT(e.studentId) as graduated_students " +
-                    "FROM inschrijving e " +
-                    "WHERE e.cursusID = " + courseoptions.getValue().getId() + " AND degreeId > 0;");
+            ResultSet rs = con.getList("SELECT COUNT(e.CursistID) as graduated_students " +
+                    "FROM certificaat e " +
+                    "WHERE e.cursusID = " + courseoptions.getValue().getId() );
             int result = rs.getInt("graduated_students");
             return result;
         } catch (SQLException e) {
