@@ -442,3 +442,4 @@ FodyWeavers.xsd
 # End of https://mrkandreev.name/snippets/gitignore-generator/#Java,NetBeans,Java-Web,Code-Java,VisualStudio,VisualStudioCode
 .vscode/settings.json
 Database/ConnectionDB.java
+Database/ConnectionDB.java

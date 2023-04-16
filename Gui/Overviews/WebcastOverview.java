@@ -67,13 +67,12 @@ public class WebcastOverview {
             thisStage.close();
         });
 
-        // // Create a VBox to hold the HBox and button
-        // VBox vBox = new VBox(10, messageLabel, back);
-        // vBox.setAlignment(Pos.CENTER);
+        // Create a VBox to hold the HBox and button
+        VBox vBox = new VBox(10, gridPane, back);
+        vBox.setAlignment(Pos.CENTER);
 
         // // Create a new Scene with the VBox as the root node
-        // return new Scene(vBox, 500, 300);
-        return new Scene(gridPane, 500, 300);
+        return new Scene(vBox, 500, 300);
     }
 
 }
