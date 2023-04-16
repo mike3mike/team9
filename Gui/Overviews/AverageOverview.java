@@ -98,31 +98,18 @@ public class AverageOverview {
         return new Scene(vBox, 500, 300);
     }
 
-    public GridPane getTable() {
-        GridPane gridPane = new GridPane();
-        gridPane.setHgap(20);
-        gridPane.setVgap(20);
-        gridPane.setPadding(new Insets(20));
+    public VBox getTable() {
+        VBox vBox = new VBox();
+        vBox.setPadding(new Insets(20));
 
         try {
             ResultSet sr = con.getList(
-                    "SELECT " +
-                            "   m.titel AS module_name, " +
-                            "   AVG(p.progressie) AS gemiddelde_voortgang " +
-                            "FROM " +
-                            "   Module m " +
-                            "   LEFT JOIN progressie p ON m.contentItemId = p.contentItemId " +
-                            "WHERE " +
-                            "   CursusID = " + courseoptions.getValue().getId() + " " +
-                            "GROUP BY " +
-                            "   m.titel " +
-                            "HAVING " +
-                            "   COUNT(p.id) > 0 " +
-                            "ORDER BY " +
-                            "   m.titel;");
-            int index = 0;
+                    "SELECT c.titel AS module_name, AVG(p.progressie) AS gemiddelde_voortgang FROM Module m LEFT JOIN progressie p ON m.contentItemId = p.contentItemId JOIN contentItem c ON m.contentItemId = c.id WHERE m.CursusID = "
+                            + courseoptions.getValue().getId()
+                            + " GROUP BY c.titel HAVING COUNT(p.progressID) > 0 ORDER BY c.titel;");
             while (sr.next()) {
                 String title = sr.getString("module_name");
+                System.out.println(title);
                 double average = sr.getInt("gemiddelde_voortgang");
 
                 Label labelTitel = new Label();
@@ -135,11 +122,11 @@ public class AverageOverview {
                 row.getChildren().addAll(labelTitel, labelAverage);
                 row.setAlignment(Pos.CENTER);
 
-                gridPane.addRow(index++, row);
+                vBox.getChildren().add(row);
             }
         } catch (SQLException e) {
             System.out.println(e.getMessage());
         }
-        return gridPane;
+        return vBox;
     }
 }
