@@ -2,6 +2,8 @@ package Gui;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+
+import Components.Validators;
 import Database.ConnectionDB;
 import javafx.application.Application;
 import javafx.collections.ObservableList;
@@ -19,6 +21,7 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import javafx.scene.text.Text;
 import javafx.stage.Stage;
 
 public class ModuleController extends Application {
@@ -77,7 +80,7 @@ public class ModuleController extends Application {
             }
             layout.setLeft(Modules);
 
-            Button add = new Button("add new Cursis");
+            Button add = new Button("add new module");
             Button delete = new Button("delete");
             Button edit = new Button("edit");
             Button Back = new Button("go back");
@@ -98,6 +101,7 @@ public class ModuleController extends Application {
                 try {
                     deleteModule(id.getModuleId());
                 } catch (SQLException e) {
+                    System.out.println(e);
                 }
 
             });
@@ -263,9 +267,10 @@ public class ModuleController extends Application {
     }
 
     private void deleteModule(int id) throws SQLException {
-        String SQL = "DELETE FROM module WHERE id=" + id + ";";
+        String SQL = "DELETE FROM module WHERE contentItemid=" + id + ";";
         con.execute(SQL);
-
+SQL = "DELETE FROM contentItem where id= "+id+"";
+con.execute(SQL);
     }
     public Scene editModule (Domain.Module module) {
         try {
@@ -279,19 +284,19 @@ public class ModuleController extends Application {
 
             while (rs.next()) {
         TextField titleInput = new TextField(rs.getString("titel"));
-        TextField descriptionInput = new TextField(rs.getString("status"));
+        TextField descriptionInput = new TextField(rs.getString("beschrijving"));
         ChoiceBox<String> statusChoiceBox = new ChoiceBox();
         statusChoiceBox.getItems().add("concept");
         statusChoiceBox.getItems().add("actief");
         statusChoiceBox.getItems().add("gearchiveerd");
-        statusChoiceBox.selectionModelProperty().getValue().select(rs.getString("titel"));;
+        statusChoiceBox.selectionModelProperty().getValue().select(rs.getString("status"));;
         HBox PublishDateBox = new HBox();
-        TextField publishDay = new TextField();
+        TextField publishDay = new TextField(dataArray[0]);
         publishDay.setPromptText("Dag");
-        TextField publishMonth = new TextField();
+        TextField publishMonth = new TextField(dataArray[1]);
         publishMonth.setPromptText("maand");
 
-        TextField publishYear = new TextField();
+        TextField publishYear = new TextField(dataArray[2]);
         publishYear.setPromptText("jaar");
 
         PublishDateBox.getChildren().addAll(publishDay, publishMonth, publishYear);
@@ -312,20 +317,39 @@ public class ModuleController extends Application {
         layout.getChildren().add(contactInput);
         layout.getChildren().add(new Label("email van contactpersoon"));
         layout.getChildren().add(contactEmail);
+        
 
         Button button = new Button("verzenden");
+        Text Error = new Text();
+                layout.getChildren().add(Error);
         layout.getChildren().add(button);
                 button.setOnAction((eventHandler) -> {
-                    try {
-                        editButton(titleInput, descriptionInput, statusChoiceBox, date, versionInput, contactInput,
-                        contactEmail, module);
-                        layout.getChildren().add(new Label("Cursus is gewijzigd"));
-
-                    } catch (SQLException e) {
-                        layout.getChildren().add(new Label(e.getMessage()));
+                    date = publishDay.getText()+"-"+publishMonth.getText()+"-"+publishYear.getText();
+                    
+                    if(Validators.dateValid(date)){
+                        if(Validators.emailValid(contactEmail.getText())){
+                            try {
+                                editButton(titleInput, descriptionInput, statusChoiceBox, date, versionInput, contactInput,
+                                contactEmail, module);
+                                layout.getChildren().add(new Label("Cursus is gewijzigd"));
+        
+                            } catch (SQLException e) {
+                                layout.getChildren().add(new Label(e.getMessage()));
+        
+                            }
+                       
 
                     }
+                    else{
+                            Error.setText("email is not valid");
+                    }
+                    }
+                    else{
+                        Error.setText("Date is not valid");
+                    }
                 });
+
+                
             }
 
             Scene printCourses = new Scene(layout);

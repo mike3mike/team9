@@ -21,6 +21,7 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import javafx.scene.text.Text;
 import javafx.stage.Stage;
 
 public class WebcastController extends Application {
@@ -44,7 +45,7 @@ public class WebcastController extends Application {
         organisationColumn.setCellValueFactory(new PropertyValueFactory<>("organisation"));
         URLColumn.setCellValueFactory(new PropertyValueFactory<>("URL"));
 
-        Webcasts.getColumns().addAll(titleColumn, descriptionColumn, statusColumn, publishDateColumn, speakerColumn,
+        Webcasts.getColumns().addAll(titleColumn, descriptionColumn, statusColumn, publishDateColumn, speakerColumn,organisationColumn,
                 URLColumn);
 
     }
@@ -111,7 +112,6 @@ public class WebcastController extends Application {
                 try {
                     deleteWebcast(id.getWebcastId());
                 } catch (SQLException e) {
-                    buttons.getChildren().add(new Label(e.getLocalizedMessage()));
                 }
 
             });
@@ -276,8 +276,9 @@ System.out.println(e);            }
     }
 
     private void deleteWebcast(int id) throws SQLException {
-        String SQL = "DELETE FROM module WHERE id=" + id + ";";
+        String SQL = "DELETE FROM webcast WHERE contentItemid=" + id + ";";
         con.execute(SQL);
+        SQL = "DELETE FROM contentItem WHERE id= "+id+"";
 
     }
     public Scene editWebcast(Webcast webcast) {
@@ -296,14 +297,15 @@ System.out.println(e);            }
                 statusChoiceBox.getItems().add("concept");
                 statusChoiceBox.getItems().add("actief");
                 statusChoiceBox.getItems().add("gearchiveerd");
+                statusChoiceBox.getSelectionModel().select(rs.getString("status"));
                 HBox PublishDateBox = new HBox();
                 String[] date = rs.getString("publicatiedatum").split("-");
-                TextField publishDay = new TextField();
+                TextField publishDay = new TextField(date[0]);
                 publishDay.setPromptText("Dag");
-                TextField publishMonth = new TextField();
+                TextField publishMonth = new TextField(date[1]);
                 publishMonth.setPromptText("maand");
         
-                TextField publishYear = new TextField();
+                TextField publishYear = new TextField(date[2]);
                 publishYear.setPromptText("jaar");
         
                 PublishDateBox.getChildren().addAll(publishDay, publishMonth, publishYear);
@@ -326,19 +328,33 @@ System.out.println(e);            }
                 layout.getChildren().add(speakerNameInput);
         
                 Button button = new Button("verzenden");
+                Text Error = new Text();
+                layout.getChildren().add(Error);
                 layout.getChildren().add(button);
                 String Date = publishDay.getText() + "-" + publishMonth.getText() + "-" + publishYear.getText();
 
                 button.setOnAction((eventHandler) -> {
-                    
-                    try {
-                        editButton(titleInput, descriptionInput, statusChoiceBox, Date,URLInput ,id,organisationNameInput,speakerNameInput,webcast );
-                        layout.getChildren().add(new Label("Cursus is gewijzigd"));
-
-                    } catch (SQLException e) {
-                        layout.getChildren().add(new Label(e.getMessage()));
+                    if(Validators.dateValid(Date)){
+                        if(Validators.URLValid(URLInput.getText())){
+                        try {
+                            editButton(titleInput, descriptionInput, statusChoiceBox, Date,URLInput ,id,organisationNameInput,speakerNameInput,webcast );
+                            layout.getChildren().add(new Label("Cursus is gewijzigd"));
+    
+                        } catch (SQLException e) {
+                            layout.getChildren().add(new Label(e.getMessage()));
+    
+                        }
+                       
 
                     }
+                    else{
+                            Error.setText("URL is not valid");
+                    }
+                    }
+                    else{
+                        Error.setText("Date is not valid");
+                    }
+                 
                 });
             }
 
@@ -364,7 +380,7 @@ con.execute(SQL);
  SQL = "UPDATE contentItem SET titel = '"+ name+"',beschrijving = '"+description+"',status= '"+status+"',publicatiedatum = '"+Date+"' WHERE id=" + id + ";";
 con.execute(SQL);
 int courseIndex = Webcasts.getItems().indexOf(webcast);
-Webcast changedCourse = new Webcast(id, id, Date, status, SQL, description, url, speakerName, organisationName);
+Webcast changedCourse = new Webcast(id, id, Date, status, name, description, url, speakerName, organisationName);
 Object[] webcasts = Webcasts.getItems().toArray();
 webcasts[courseIndex] = changedCourse;
 Webcasts.getItems().clear();

@@ -32,7 +32,7 @@ public class Cursist {
         this.dateOfBirth = dateOfBirth;
         this.gender = gender;
         this.addres = addres;
-        this.postalcode = postalcode;
+        this.postalcode = Postalcode;
 
         this.city = city;
         this.country = country;
@@ -112,7 +112,7 @@ public class Cursist {
         return enrolledCourses;
     }
 
-    public String getPostalcode() {
+    public String getPostalCode() {
         return postalcode;
     }
 

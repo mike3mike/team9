@@ -21,6 +21,7 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import Domain.CourseDomain;
 import Domain.Cursist;
@@ -50,7 +51,7 @@ public class CursistController extends Application {
         countryColumn.setCellValueFactory(new PropertyValueFactory<>("country"));
         addresColumn.setCellValueFactory(new PropertyValueFactory<>("addres"));
         PostalCodeColumn.setCellValueFactory(new PropertyValueFactory<>("postalcode"));
-        Cursists.getColumns().addAll(nameColumn, emailColumn, DateofbirthColumn, genderColumn, cityColumn,
+        Cursists.getColumns().addAll(nameColumn, emailColumn, DateofbirthColumn, genderColumn, cityColumn,addresColumn,
                 countryColumn, PostalCodeColumn);
 
     }
@@ -69,13 +70,14 @@ public class CursistController extends Application {
                 String Dateofbirth = rs.getString("geboortedatum");
                 String gender = rs.getString("geslacht");
                 String addres = rs.getString("adres");
-                String postalcode = rs.getString("postcode");
+                String postalCode = rs.getString("postcode");
+                System.out.println(postalCode);
                 String city = rs.getString("woonplaats");
                 String country = rs.getString("land");
 
                 int id = rs.getInt("id");
                 Cursists.getItems()
-                        .add(new Cursist(name, email, Dateofbirth, gender, addres, postalcode, city, country, id, null,
+                        .add(new Cursist(name, email, Dateofbirth, gender, addres, postalCode, city, country, id, null,
                                 null));
             }
             layout.setLeft(Cursists);
@@ -127,9 +129,10 @@ public class CursistController extends Application {
                 Cursists.getItems().remove(id);
 
                 try {
+                    
                     deleteCursist(id.getid());
                 } catch (SQLException e) {
-                    buttons.getChildren().add(new Label(e.getLocalizedMessage()));
+                    e.printStackTrace();
                 }
 
             });
@@ -193,6 +196,8 @@ public class CursistController extends Application {
         layout.getChildren().add(addresInput);
         layout.getChildren().add(new Label("postcode"));
         layout.getChildren().add(postalcodeInput);
+        Text Error = new Text();
+                layout.getChildren().add(Error);
 
         Button button = new Button("verzenden");
         layout.getChildren().add(button);
@@ -207,11 +212,11 @@ public class CursistController extends Application {
                     Stage thisStage = (Stage) node.getScene().getWindow();
                     thisStage.close();
                 } catch (SQLException e) {
-                    layout.getChildren().add(new Label(e.getMessage()));
+                    Error.setText(e.getMessage());
 
                 }
             } else {
-                layout.getChildren().add(new Label("velden kloppen niet"));
+                Error.setText("velden kloppen niet");
 
             }
         });
@@ -413,12 +418,12 @@ public class CursistController extends Application {
             TextField NameInput = new TextField(rs.getString("naam"));
             TextField emailInput = new TextField(rs.getString("email"));
             HBox PublishDateBox = new HBox();
-            TextField publishDay = new TextField(dateArray[2]);
+            TextField publishDay = new TextField(dateArray[0]);
             publishDay.setPromptText("Dag");
             TextField publishMonth = new TextField(dateArray[1]);
             publishMonth.setPromptText("maand");
     
-            TextField publishYear = new TextField(dateArray[0]);
+            TextField publishYear = new TextField(dateArray[2]);
             publishYear.setPromptText("jaar");
     
             PublishDateBox.getChildren().addAll(publishDay, publishMonth, publishYear);
@@ -443,22 +448,46 @@ public class CursistController extends Application {
             layout.getChildren().add(addresInput);
             layout.getChildren().add(new Label("postcode"));
             layout.getChildren().add(postalcodeInput);
-            
+                
+            Text Error = new Text();
+                layout.getChildren().add(Error);
             Button button = new Button("verzenden");
             layout.getChildren().add(button);
-                button.setOnAction((eventHandler) -> {
-            String date = publishDay.getText() + "-" + publishMonth.getText() + "-" + publishYear.getText();
-
-                    try {
-                        editCursist(NameInput, emailInput, date, genderInput, cityInput, countryInput, addresInput,
-                        postalcodeInput, cursist);
-                        layout.getChildren().add(new Label("Cursus is gewijzigd"));
-
-                    } catch (SQLException e) {
-                        layout.getChildren().add(new Label(e.getMessage()));
-
+            button.setOnAction((eventHandler) -> {
+                String date = publishDay.getText() + "-" + publishMonth.getText() + "-" + publishYear.getText();
+    
+                if(Validators.dateValid(date)){
+                    if(Validators.postcodeValid(postalcodeInput.getText())){
+                        if(Validators.emailValid(emailInput.getText())){
+                        try {
+                            editCursist(NameInput, emailInput, date, genderInput, cityInput, countryInput, addresInput,
+                            postalcodeInput, cursist);
+                            layout.getChildren().add(new Label("Cursus is gewijzigd"));
+                            Error.setText("Cursus is gewijzigd");
+    
+                        } catch (SQLException e) {
+                            layout.getChildren().add(new Label(e.getMessage()));
+    
+    System.out.println(e);
+                        }
                     }
-                });
+                    else{
+                        Error.setText("Email is not valid");
+    
+                    }
+                   
+    
+                }
+                else{
+                        Error.setText("URL is not valid");
+                }
+                }
+                else{
+                    Error.setText("Date is not valid");
+                }
+    
+    
+                    });
             
 
             Scene printCourses = new Scene(layout);
@@ -481,8 +510,7 @@ public class CursistController extends Application {
         String country = countryInput.getText();
         String addres = addresInput.getText();
         String postalcode = postalcodeInput.getText();
-        String SQL = "UPDATE cursist SET naam = '"+name+"',email = '"+email+"',geboortedatum = '"+gender+"',geslacht = '"+city+"',land = '"+country+"',adres= '"+addres+"',postcode= '"+postalcode+"',woonplaats= '"+city+"' WHERE id=" + cursist.getId() + ";";
-        con.execute(SQL);
+        String SQL = "UPDATE cursist SET naam = '"+name+"',email = '"+email+"',geboortedatum = '"+date+"',geslacht = '"+gender+"',land = '"+country+"',adres= '"+addres+"',postcode= '"+postalcode+"',woonplaats= '"+city+"' WHERE id=" + cursist.getId() + ";";        con.execute(SQL);
         int courseIndex = Cursists.getItems().indexOf(cursist);
         Cursist changedCursist = new Cursist(name, email, date, gender, addres, postalcode, city, country, courseIndex, cursist.getDiplomas(), cursist.getEnrolledCourses());
         Object[] cursists = Cursists.getItems().toArray();
