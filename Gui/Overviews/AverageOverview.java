@@ -112,14 +112,15 @@ public class AverageOverview {
                             "FROM " +
                             "   Module m " +
                             "   LEFT JOIN progressie p ON m.contentItemId = p.contentItemId " +
+                            "   JOIN contentItem c ON m.contentItemId = c.id" +
                             "WHERE " +
-                            "   CursusID = " + courseoptions.getValue().getId() + " " +
+                            "   CursusID = " + courseoptions.getValue().getId() +
                             "GROUP BY " +
-                            "   m.titel " +
+                            "   c.titel " +
                             "HAVING " +
                             "   COUNT(p.id) > 0 " +
                             "ORDER BY " +
-                            "   m.titel;");
+                            "   c.titel;");
             int index = 0;
             while (sr.next()) {
                 String title = sr.getString("module_name");
