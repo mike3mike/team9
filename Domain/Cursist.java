@@ -109,7 +109,7 @@ public class Cursist {
         return enrolledCourses;
     }
 
-    public String getPostalcode() {
+    public String getPostalCode() {
         return postalcode;
     }
 

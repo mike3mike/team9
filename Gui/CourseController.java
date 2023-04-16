@@ -91,11 +91,12 @@ public class CourseController extends Application {
             layout.setLeft(courses);
 
             Button add = new Button("add new Course");
+            Button addModule = new Button("add module to course");
             Button delete = new Button("delete");
             Button edit = new Button("edit");
             Button back = new Button("go back");
             HBox buttons = new HBox();
-            buttons.getChildren().addAll(back, add, delete, edit);
+            buttons.getChildren().addAll(back, add,addModule, delete, edit);
             add.setOnAction((EventHandler) -> {
                 if (modules.size() == 0) {
                     ErrorMessage.ErrorScreen("voeg eerst een module toe!");
@@ -118,6 +119,25 @@ public class CourseController extends Application {
                 }
 
             });
+            addModule.setOnAction((EventHandler) -> {
+                TableViewSelectionModel selectionModel = courses.getSelectionModel();
+                ObservableList<CourseDomain> selectedItems = selectionModel.getSelectedItems();
+                CourseDomain id = selectedItems.get(0);
+                // courses.getItems().remove(id);
+                Stage stage = new Stage();
+                try {
+                    AddModule(id);
+                    stage.setScene(AddModule(id));
+
+                } catch (SQLException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                }
+                stage.show();
+                courses.refresh();
+
+            });
+
             edit.setOnAction((EventHandler) -> {
                 TableViewSelectionModel selectionModel = courses.getSelectionModel();
                 ObservableList<CourseDomain> selectedItems = selectionModel.getSelectedItems();
@@ -235,7 +255,7 @@ public class CourseController extends Application {
             Domain.Module Selectedmodule = modules.getValue();
             int moduleID = Selectedmodule.getModuleId();
             System.out.println(moduleID);
-            String SQL = "UPDATE module SET cursusID = " + id.getId() + " WHERE id =" + moduleID;
+            String SQL = "UPDATE module SET cursusID = " + id.getId() + " WHERE contentItemid =" + moduleID;
             try {
                 con.execute(SQL);
             } catch (SQLException e) {
@@ -314,7 +334,13 @@ public class CourseController extends Application {
         con.execute(SQL);
         int courseIndex = courses.getItems().indexOf(course);
         CourseDomain changedCourse = new CourseDomain(name, Subject, description, difficulty, id);
-        courses.getItems().set(courseIndex, changedCourse);
+        Object[] Courses = courses.getItems().toArray();
+        Courses[courseIndex] = changedCourse;
+        courses.getItems().clear();
+        courses.getItems().addAll(Courses);
+        Stage thisStage = (Stage) NameInput.getScene().getWindow();
+                thisStage.close();
+        
 
     }
 
