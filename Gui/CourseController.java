@@ -80,12 +80,12 @@ public class CourseController extends Application {
             // this while loop adds courses to the table
             while (rs.next()) {
                 String name = rs.getString("naam");
-                String Subject = rs.getString("onderwerp");
+                String subject = rs.getString("onderwerp");
                 String description = rs.getString("introductietekst");
                 String diffuculty = rs.getString("niveau");
 
                 int id = rs.getInt("ID");
-                courses.getItems().add(new CourseDomain(name, Subject, description, diffuculty, id));
+                courses.getItems().add(new CourseDomain(name, subject, description, diffuculty, id));
 
             }
             layout.setLeft(courses);
@@ -93,9 +93,9 @@ public class CourseController extends Application {
             Button add = new Button("add new Course");
             Button delete = new Button("delete");
             Button edit = new Button("edit");
-            Button Back = new Button("go back");
+            Button back = new Button("go back");
             HBox buttons = new HBox();
-            buttons.getChildren().addAll(Back, add, delete, edit);
+            buttons.getChildren().addAll(back, add, delete, edit);
             add.setOnAction((EventHandler) -> {
                 if (modules.size() == 0) {
                     ErrorMessage.ErrorScreen("voeg eerst een module toe!");
@@ -130,7 +130,7 @@ public class CourseController extends Application {
                 courses.refresh();
 
             });
-            Back.setOnAction((Action) -> {
+            back.setOnAction((Action) -> {
                 Stage stage = new Stage();
                 ApplicationController controller = new ApplicationController();
                 try {

@@ -22,16 +22,14 @@ public class WebcastOverview {
 
     public Scene getScene() {
 
-        // Create a label with the message "x"
-        Label messageLabel = new Label("Deze snap ik niet haha");
-
         GridPane gridPane = new GridPane();
         gridPane.setHgap(20);
         gridPane.setVgap(20);
         gridPane.setPadding(new Insets(20));
-        
+
         try {
-            ResultSet sr = con.getList("SELECT TOP 3 c.titel, count(w.contentItemid) AS views FROM Webcast w  JOIN progressie p on w.contentItemId = p.contentItemId JOIN contentItem c on c.id = w.contentItemid GROUP BY c.titel ORDER BY views DESC");
+            ResultSet sr = con.getList(
+                    "SELECT TOP 3 c.titel, count(w.contentItemid) AS views FROM Webcast w  JOIN progressie p on w.contentItemId = p.contentItemId JOIN contentItem c on c.id = w.contentItemid GROUP BY c.titel ORDER BY views DESC");
             int index = 0;
             while (sr.next()) {
                 String titel = sr.getString("titel");
@@ -42,7 +40,7 @@ public class WebcastOverview {
 
                 Label labelViews = new Label();
                 labelViews.setText(Integer.toString(views));
-                
+
                 HBox row = new HBox(20);
                 row.getChildren().addAll(labelTitel, labelViews);
                 row.setAlignment(Pos.CENTER);
@@ -52,7 +50,6 @@ public class WebcastOverview {
         } catch (SQLException e) {
             System.out.println(e.getMessage());
         }
-        
 
         // Create a button to go back
         Button back = new Button("Ga terug");

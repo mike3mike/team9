@@ -1,5 +1,11 @@
 package Gui.Overviews;
 
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
+
+import Database.ConnectionDB;
+import Domain.CourseDomain;
 import Gui.ApplicationController;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
@@ -12,20 +18,36 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
 public class GraduatedOverview {
-
-    private ComboBox<String> courseoptions = new ComboBox<>();
-    private int numberGraduated;
+    private ConnectionDB con = new ConnectionDB();
+    private ArrayList<CourseDomain> courses = new ArrayList<>();
+    private ComboBox<CourseDomain> courseoptions = new ComboBox<>();
 
     public Scene getScene() {
 
-        // Create label with results
+        try {
+            ResultSet sr = con.getList("SELECT * FROM cursus ");
+            while (sr.next()) {
+                String Course = sr.getString("naam");
+                String Subject = sr.getString("onderwerp");
+                String description = sr.getString("introductietekst");
+                String diffuculty = sr.getString("niveau");
+                int courseId = sr.getInt("id");
+                CourseDomain course = new CourseDomain(Course, Subject, description, diffuculty, courseId);
+                courses.add(course);
+
+            }
+
+        } catch (SQLException e) {
+            System.out.println(e);
+        }
+
         Label result = new Label("");
         result.setVisible(false);
 
         // Create a label with the message "Kies een cursus" and a dropdown
         Label messageLabel = new Label("Kies een cursus");
-        for (int i = 0; cursists.size() > i; i++) {
-            courseoptions.getItems().add(cursists.get(i));
+        for (int i = 0; courses.size() > i; i++) {
+            courseoptions.getItems().add(courses.get(i));
         }
 
         // Create a button to go back
@@ -45,7 +67,7 @@ public class GraduatedOverview {
         });
         Button show = new Button("Laat resultaat zien");
         show.setOnAction((Action) -> {
-            result.setText("Voor deze cursus zijn " + numberGraduated + " gebruikers geslaagd");
+            result.setText(getCompletedNumber() + " cursisten hebben deze cursus behaald");
             result.setVisible(true);
         });
 
@@ -65,4 +87,16 @@ public class GraduatedOverview {
         return new Scene(vBox, 500, 300);
     }
 
+    public int getCompletedNumber() {
+        try {
+            ResultSet rs = con.getList("SELECT COUNT(e.studentId) as graduated_students " +
+                    "FROM inschrijving e " +
+                    "WHERE e.cursusID = " + courseoptions.getValue().getId() + " AND degreeId > 0;");
+            int result = rs.getInt("graduated_students");
+            return result;
+        } catch (SQLException e) {
+            System.out.println(e);
+        }
+        return 0;
+    }
 }
